@@ -1,0 +1,36 @@
+---
+title: "pXRF analysis"
+author: "Uine Kailamäki"
+date: "11/27/2020"
+output: word_document
+fig_width: 12 
+fig_height: 10 
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+## Title
+
+Text
+
+```{r, echo=FALSE}
+library(dplyr); library(corrplot)
+citation("dplyr")
+citation("corrplot")
+
+n_pxrf <- read.table("data/n-pXRF.xlsx")
+npxrf <- n_pxrf %>% select_if(~!all(is.na(.)))
+
+summary(npxrf)
+
+cor(npxrf) %>% corrplot (type = "lower", tl.cex = 0.7, tl.pos="d", cl.pos="r")
+
+pca_xrf <- prcomp(na.omit(npxrf))
+
+```
+
+

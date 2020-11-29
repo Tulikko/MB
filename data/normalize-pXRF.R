@@ -1,0 +1,73 @@
+# Uine Kailamäki 09/11/2020
+# File for normalizing pXRF results
+
+# Read data
+
+library(openxlsx)
+Results <- read.xlsx("data/Results.xlsx", sep=";", header = TRUE, dec = ",")
+
+# Select which columns to keep
+
+keep_c <- c("Sample", "MgO", "MgO;Err", "Al2O3", "Al2O3;Err", "SiO2",  "SiO2;Err", "P2O5", "P2O5;Err", "S", "S;Err", "Cl", "Cl;Err", "K2O", "K2O;Err", "CaO", "CaO;Err", "Ti", "Ti;Err", "V", "V;Err", "Cr", "Cr;Err", "Mn", "Mn;Err", "Fe", "Fe;Err", "Co", "Co;Err", "Ni", "Ni;Err", "Cu",  "Cu;Err", "Zn", "Zn;Err", "As", "As;Err", "Se", "Se;Err", "Rb", "Rb;Err", "Sr", "Sr;Err", "Y", "Y;Err", "Zr", "Zr;Err", "Nb", "Nb;Err", "Mo", "Mo;Err", "Rh", "Rh;Err", "Pd", "Pd;Err", "Ag", "Ag;Err", "Cd", "Cd;Err", "Sn", "Sn;Err", "Sb", "Sb;Err", "Ba", "Ba;Err", "La", "La;Err", "Ce", "Ce;Err", "Hf", "Hf;Err", "Ta", "Ta;Err", "W", "W;Err", "Pt", "Pt;Err", "Au", "Au;Err", "Hg", "Hg;Err", "Tl", "Tl;Err", "Pb", "Pb;Err", "Bi", "Bi;Err", "Th", "Th;Err", "U", "U;Err")
+
+# Create the analysis dataset with chosen columns
+
+pxrf <- select(Results, one_of(keep_c))
+
+# Change "Sample" to factor & check the result
+
+pxrf$Sample <- factor(pxrf$Sample)
+glimpse(pxrf)
+
+
+###############
+
+# TURNING LOD:s and missing values to NA:s
+
+# Fetch the dplyr-library
+library(dplyr)
+
+values <- c("MgO", "Al2O3", "SiO2", "P2O5", 
+            "S", "Cl", "K2O", "CaO", "Ti", "V", "Cr", 
+            "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "As", 
+            "Se", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", 
+            "Rh", "Pd", "Ag", "Cd", "Sn", "Sb", "Ba", 
+            "La", "Ce", "Hf", "Ta", "W", "Pt", "Au", 
+            "Hg", "Tl", "Pb", "Bi", "Th", "U")
+
+normal <- select(pxrf, one_of(values))
+
+n <- normal %>% mutate_if(is.character,as.numeric)
+
+glimpse(n)
+class(n)
+
+# NORMALIZING COLUMNS TO VALUES BETWEEN 0-1
+
+# Create function “normalize” (na.rm=TRUE excludes NA values from analysis)
+normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-min(x, na.rm=TRUE))}
+
+# Execute “normalize” to “n”, check min/max values
+nz <- as.data.frame(apply(n, 2, normalize))
+min(nz, na.rm=TRUE)
+max(nz, na.rm=TRUE)
+
+summary(nz)
+class(nz)
+
+## Add "sample" as factor for analysis!
+## As factor/rownames? Is there a difference?
+
+# Save as .txt and .xlsx
+library(openxlsx)
+write.xlsx(nz, file="n-pXRF.xlsx")
+write.table(nz, "n-pXRF.txt")
+
+
+# Normalize functions from Marta
+library(mQTL.NMR)
+normalise(x, method, refID)
+
+library(metabolomics)
+https://rdrr.io/cran/metabolomics/man/Normalise.html
+Normalise(x, method, refvec)
