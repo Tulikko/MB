@@ -3,8 +3,10 @@
 
 # Read data
 
+setwd("~/R/MB/data")
+
 library(openxlsx)
-Results <- read.xlsx("data/Results.xlsx", sep=";", header = TRUE, dec = ",")
+Results <- read.xlsx("Results.xlsx", sep=";")
 
 # Select which columns to keep
 
@@ -55,8 +57,10 @@ max(nz, na.rm=TRUE)
 summary(nz)
 class(nz)
 
+
 ## Add "sample" as factor for analysis!
 ## As factor/rownames? Is there a difference?
+
 
 # Save as .txt and .xlsx
 library(openxlsx)
