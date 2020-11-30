@@ -54,13 +54,16 @@ nz <- as.data.frame(apply(n, 2, normalize))
 min(nz, na.rm=TRUE)
 max(nz, na.rm=TRUE)
 
+# Add sample column from original file
+nz <- nz %>% mutate(sample = pxrf$Sample)
+
 summary(nz)
 class(nz)
+glimpse(nz)
 
-
-## Add "sample" as factor for analysis!
-## As factor/rownames? Is there a difference?
-
+# Averages by "sample"
+avrg <- aggregate(nz, by = list(nz$sample), FUN = mean)
+avrg
 
 # Save as .txt and .xlsx
 library(openxlsx)
