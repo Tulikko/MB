@@ -1,5 +1,6 @@
 # Uine Kailamäki 09/11/2020
 # File for normalizing pXRF results
+# Passphrase : dominion
 
 
 ###############
@@ -57,21 +58,22 @@ class(n)
 # NORMALIZING COLUMNS TO VALUES BETWEEN 0-1
 
 # Create function “normalize” (na.rm=TRUE excludes NA values from analysis)
+# nn = (x-min)/(max-min)
 normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-min(x, na.rm=TRUE))}
 
 # Execute “normalize” to “n”, check min/max values
-nz <- as.data.frame(apply(n, 2, normalize))
-min(nz, na.rm=TRUE)
-max(nz, na.rm=TRUE)
+nn <- as.data.frame(apply(n, 2, normalize))
+min(nn, na.rm=TRUE)
+max(nn, na.rm=TRUE)
 
 
 ###############
 
+# STANDARDIZING BY Z-SCORE (CENTRALIZED AROUND 0; PRESERVES DIFFERENCES IN DISTRIBUTION BETTER THAN 0-1)
+# zz = (x - mean(x)) / sd(x)
+
 # Standardizing by z-standardization
 zz <- as.data.frame(scale(n))
-
-glimpse(zz)
-class(zz)
 
 
 ###############
@@ -80,12 +82,12 @@ class(zz)
 
 # Add column sample from original file
 
-nz <- nz %>% mutate(sample = pxrf$Sample)
+nn <- nn %>% mutate(sample = pxrf$Sample)
 zz <- zz %>% mutate(sample = pxrf$Sample)
 
 # Averages by "sample" (this creates a new column "Group.1")
 
-avrg_n <- aggregate(nz, by = list(nz$sample), FUN = mean)
+avrg_n <- aggregate(nn, by = list(nn$sample), FUN = mean)
 avrg_z <- aggregate(zz, by = list(zz$sample), FUN = mean)
 
 # Remove original "sample", create new "Sample" from "Group.1", 
@@ -94,11 +96,6 @@ names(avrg_n)[names(avrg_n) == "Group.1"] <- "Sample"
 
 avrg_z <- avrg_z %>% select(-sample)
 names(avrg_z)[names(avrg_z) == "Group.1"] <- "Sample"
-
-# Remove any rows containing 'ERROR' or 'TEST'
-
-avrg_n <- filter(avrg_n, !grepl('TEST', 'ERROR', Sample))
-avrg_z <- filter(avrg_z, !grepl('TEST', 'ERROR', Sample))
 
 
 ###############
@@ -125,8 +122,6 @@ write.xlsx(avrg_n2, file="n2-pXRF.xlsx")
 
 write.xlsx(avrg_z1, file="z1-pXRF.xlsx")
 write.xlsx(avrg_z2, file="z2-pXRF.xlsx")
-
-write.xlsx(pxrf, file="clean-pXRF.xlsx")
 
 
 ###############
