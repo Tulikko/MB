@@ -26,6 +26,11 @@ pxrf <- select(Results, one_of(keep_c))
 
 pxrf$Sample <- factor(pxrf$Sample)
 
+# Remove any rows containing 'ERROR' or 'TEST'
+
+pxrf <- filter(pxrf, !grepl('TEST', Sample))
+pxrf <- filter(pxrf, !grepl('ERROR', Sample))
+
 
 ###############
 
@@ -73,27 +78,27 @@ class(zz)
 
 # AVERAGE NORMALIZED VALUES PER SAMPLE
 
-# Add sample column from original file
+# Add column sample from original file
+
 nz <- nz %>% mutate(sample = pxrf$Sample)
 zz <- zz %>% mutate(sample = pxrf$Sample)
 
-# Averages by "sample" (this creates new column "Group.1")
+# Averages by "sample" (this creates a new column "Group.1")
+
 avrg_n <- aggregate(nz, by = list(nz$sample), FUN = mean)
 avrg_z <- aggregate(zz, by = list(zz$sample), FUN = mean)
 
-# Remove original "sample", create new "Sample", remove any samples named "ERROR"
+# Remove original "sample", create new "Sample" from "Group.1", 
 avrg_n <- avrg_n %>% select(-sample)
 names(avrg_n)[names(avrg_n) == "Group.1"] <- "Sample"
-avrg_n <- subset(avrg_n, Sample!= "ERROR")
-
-glimpse(avrg_n)
-
 
 avrg_z <- avrg_z %>% select(-sample)
 names(avrg_z)[names(avrg_z) == "Group.1"] <- "Sample"
-avrg_z <- filter(avrg_z, !grepl('TEST', 'ERROR', Sample))
 
-glimpse(avrg_z)
+# Remove any rows containing 'ERROR' or 'TEST'
+
+avrg_n <- filter(avrg_n, !grepl('TEST', 'ERROR', Sample))
+avrg_z <- filter(avrg_z, !grepl('TEST', 'ERROR', Sample))
 
 
 ###############
@@ -120,6 +125,8 @@ write.xlsx(avrg_n2, file="n2-pXRF.xlsx")
 
 write.xlsx(avrg_z1, file="z1-pXRF.xlsx")
 write.xlsx(avrg_z2, file="z2-pXRF.xlsx")
+
+write.xlsx(pxrf, file="clean-pXRF.xlsx")
 
 
 ###############
