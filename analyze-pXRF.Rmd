@@ -19,10 +19,10 @@ Text
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Code for citating packages: citation("dplyr")
-library(dplyr); library(GGally); library(corrplot)
+library(dplyr); library(GGally); library(corrplot); library(tidyr)
 
 # Read data
-n2 <- read.table("data/n2-pXRF.txt", header = TRUE, dec = ".", stringsAsFactors = TRUE)
+n2 <- read.table("data/z2-pXRF.txt", header = TRUE, dec = ".", stringsAsFactors = TRUE)
 
 # For correlation and PCA "Samples" must be rownames instead of factors
 rownames(n2) <- n2$Sample
@@ -31,6 +31,7 @@ n2 <- n2 %>% select(-Sample)
 # Visualize correlations
 cor(n2) %>% corrplot (type = "lower", tl.cex = 0.7, tl.pos="d", cl.pos="r")
 ggpairs(n2)
+ggplot(n2)
 
 # Calculate the total within sum of squares to find the optimal number of clusters
 k_max <- 8
@@ -47,6 +48,10 @@ pca_n2 <- prcomp(n2)
 summary(pca_n2)
 
 biplot(pca_n2, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+
+# HCA
+
+
 
 ```
 
