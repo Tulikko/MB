@@ -49,9 +49,6 @@ normal <- select(pxrf, one_of(values))
 
 n <- normal %>% mutate_if(is.character,as.numeric)
 
-glimpse(n)
-class(n)
-
 
 ###############
 
@@ -63,8 +60,6 @@ normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-
 
 # Execute “normalize” to “n”, check min/max values
 nn <- as.data.frame(apply(n, 2, normalize))
-min(nn, na.rm=TRUE)
-max(nn, na.rm=TRUE)
 
 
 ###############
@@ -111,6 +106,7 @@ avrg_n2 <- avrg_n %>% select_if(not_any_na)
 
 avrg_z1 <- avrg_z %>% select_if(not_all_na)
 avrg_z2 <- avrg_z %>% select_if(not_any_na) 
+
 
 ###############
 
