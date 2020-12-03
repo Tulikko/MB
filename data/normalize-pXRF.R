@@ -112,13 +112,16 @@ avrg_z2 <- avrg_z %>% select_if(not_any_na)
 
 # SAVING ANALYSIS DATASETS
 
-# Save analysis datasets as .xlsx
+# Save analysis datasets as .txt and .xlsx
+write.table(avrg_n1, file="n1-pXRF.txt")
+write.table(avrg_n2, file="n2-pXRF.txt")
 write.xlsx(avrg_n1, file="n1-pXRF.xlsx")
 write.xlsx(avrg_n2, file="n2-pXRF.xlsx")
 
+write.table(avrg_z1, file="z1-pXRF.txt")
+write.table(avrg_z2, file="z2-pXRF.txt")
 write.xlsx(avrg_z1, file="z1-pXRF.xlsx")
 write.xlsx(avrg_z2, file="z2-pXRF.xlsx")
-
 
 ###############
 

@@ -19,17 +19,20 @@ Text
 
 ```{r, echo=FALSE}
 library(dplyr); library(corrplot)
-citation("dplyr")
-citation("corrplot")
+# citation("dplyr"); citation("corrplot")
 
-n_pxrf <- read.table("data/n-pXRF.xlsx")
-npxrf <- n_pxrf %>% select_if(~!all(is.na(.)))
+n2 <- read.table("data/n2-pXRF.txt")
+z2 <- read.table("data/z2-pXRF.txt")
 
-summary(npxrf)
+n2$Sample <- factor(n2$Sample)
+z2$Sample <- factor(z2$Sample)
 
-cor(npxrf) %>% corrplot (type = "lower", tl.cex = 0.7, tl.pos="d", cl.pos="r")
+glimpse(n2)
+glimpse(z2)
 
-pca_xrf <- prcomp(na.omit(npxrf))
+cor(n2) %>% corrplot (type = "lower", tl.cex = 0.7, tl.pos="d", cl.pos="r")
+
+pca_n2 <- prcomp(n2)
 
 ```
 
