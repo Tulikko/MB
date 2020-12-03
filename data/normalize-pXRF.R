@@ -1,11 +1,17 @@
 # Uine Kailamäki 09/11/2020
 # File for normalizing pXRF results
 
+
+###############
+
+# READING RAW DATA (Change working directory to where your Results file is!)
+
+# Access necessary libraries
+
+library(dplyr); library(openxlsx)
+
 # Read data
 
-setwd("~/R/MB/data")
-
-library(openxlsx)
 Results <- read.xlsx("Results.xlsx", sep=";")
 
 # Select which columns to keep
@@ -16,18 +22,14 @@ keep_c <- c("Sample", "MgO", "MgO;Err", "Al2O3", "Al2O3;Err", "SiO2",  "SiO2;Err
 
 pxrf <- select(Results, one_of(keep_c))
 
-# Change "Sample" to factor & check the result
+# Change "Sample" to a factor
 
 pxrf$Sample <- factor(pxrf$Sample)
-glimpse(pxrf)
 
 
 ###############
 
 # TURNING LOD:s and missing values to NA:s
-
-# Fetch the dplyr-library
-library(dplyr)
 
 values <- c("MgO", "Al2O3", "SiO2", "P2O5", 
             "S", "Cl", "K2O", "CaO", "Ti", "V", "Cr", 
@@ -58,20 +60,40 @@ min(nz, na.rm=TRUE)
 max(nz, na.rm=TRUE)
 
 
+###############
+
+# Standardizing by z-standardization
+zz <- as.data.frame(scale(n))
+
+glimpse(zz)
+class(zz)
+
+
+###############
+
 # AVERAGE NORMALIZED VALUES PER SAMPLE
 
 # Add sample column from original file
 nz <- nz %>% mutate(sample = pxrf$Sample)
+zz <- zz %>% mutate(sample = pxrf$Sample)
 
 # Averages by "sample" (this creates new column "Group.1")
-avrg <- aggregate(nz, by = list(nz$sample), FUN = mean)
+avrg_n <- aggregate(nz, by = list(nz$sample), FUN = mean)
+avrg_z <- aggregate(zz, by = list(zz$sample), FUN = mean)
 
 # Remove original "sample", create new "Sample", remove any samples named "ERROR"
-avrg <- avrg %>% select(-sample)
-names(avrg)[names(avrg) == "Group.1"] <- "Sample"
-avrg <- subset(avrg, Sample!= "ERROR")
+avrg_n <- avrg_n %>% select(-sample)
+names(avrg_n)[names(avrg_n) == "Group.1"] <- "Sample"
+avrg_n <- subset(avrg_n, Sample!= "ERROR")
 
-glimpse(avrg2)
+glimpse(avrg_n)
+
+
+avrg_z <- avrg_z %>% select(-sample)
+names(avrg_z)[names(avrg_z) == "Group.1"] <- "Sample"
+avrg_z <- filter(avrg_z, !grepl('TEST', 'ERROR', Sample))
+
+glimpse(avrg_z)
 
 
 ###############
@@ -82,18 +104,22 @@ glimpse(avrg2)
 not_all_na <- function(x) any(!is.na(x))
 not_any_na <- function(x) all(!is.na(x))
 
-avrg1 <- avrg %>% select_if(not_all_na)
-avrg2 <- avrg %>% select_if(not_any_na)                 
+avrg_n1 <- avrg_n %>% select_if(not_all_na)
+avrg_n2 <- avrg_n %>% select_if(not_any_na)                 
 
+avrg_z1 <- avrg_z %>% select_if(not_all_na)
+avrg_z2 <- avrg_z %>% select_if(not_any_na) 
 
 ###############
 
 # SAVING ANALYSIS DATASETS
 
-# Save as .xlsx
-library(openxlsx)
-write.xlsx(avrg1, file="n1-pXRF.xlsx")
-write.xlsx(avrg2, file="n2-pXRF.xlsx")
+# Save analysis datasets as .xlsx
+write.xlsx(avrg_n1, file="n1-pXRF.xlsx")
+write.xlsx(avrg_n2, file="n2-pXRF.xlsx")
+
+write.xlsx(avrg_z1, file="z1-pXRF.xlsx")
+write.xlsx(avrg_z2, file="z2-pXRF.xlsx")
 
 
 ###############
