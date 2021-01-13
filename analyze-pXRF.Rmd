@@ -19,10 +19,11 @@ Text
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Code for citating packages: citation("dplyr")
-library(dplyr); library(GGally); library(corrplot); library(tidyr)
+library(dplyr); library(GGally); library(corrplot); library(tidyr); library(openxlsx)
 
 # Read data
 n2 <- read.table("data/z2-pXRF.txt", header = TRUE, dec = ".", stringsAsFactors = TRUE)
+n2 <- read.xlsx("data/n2-pXRF.xlsx", sep=";")
 
 # For correlation and PCA "Samples" must be rownames instead of factors
 rownames(n2) <- n2$Sample
