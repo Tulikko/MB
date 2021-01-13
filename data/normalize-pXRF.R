@@ -13,7 +13,7 @@ library(dplyr); library(openxlsx)
 
 # Read data
 
-Results <- read.xlsx("Results.xlsx", sep=";")
+Results <- read.xlsx("Results_C.xlsx", sep=";")
 
 # Select which columns to keep
 
