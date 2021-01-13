@@ -22,7 +22,6 @@ Text
 library(dplyr); library(GGally); library(corrplot); library(tidyr); library(openxlsx)
 
 # Read data
-n2 <- read.table("data/z2-pXRF.txt", header = TRUE, dec = ".", stringsAsFactors = TRUE)
 n2 <- read.xlsx("data/n2-pXRF.xlsx", sep=";")
 
 # For correlation and PCA "Samples" must be rownames instead of factors
