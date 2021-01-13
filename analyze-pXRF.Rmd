@@ -22,24 +22,22 @@ Text
 library(dplyr); library(GGally); library(corrplot); library(tidyr); library(openxlsx); library(cluster); library(ggplot2); library(ggfortify)
 
 # Read data
-n2 <- read.xlsx("data/n2-pXRF.xlsx", sep=";")
+n2 <- read.xlsx("data/z2-pXRF.xlsx", sep=";")
 
 # For correlation and PCA "Samples" must be rownames instead of factors
 rownames(n2) <- n2$Sample
 n2 <- n2 %>% select(-Sample)
+# n2 <- n2 %>% select(Ti, Mn, Fe, Ni, Cu, Zn, Sr, Zr)
+
+## ALL SAMPLES, CONTAINING SOIL
 
 # Visualize correlations
 cor(n2) %>% corrplot (type = "lower", tl.cex = 0.7, tl.pos="d", cl.pos="r")
 ggpairs(n2)
 ggplot(n2)
 
-# Select columns for PCA:
-colnames(n2)
-n2 <- n2 %>% select(MgO, Ti, Mn, Fe, Cu, Zn, Sr, Zr)
-
-
 # Calculate the total within sum of squares to find the optimal number of clusters
-k_max <- 18
+k_max <- 8
 twcss <- sapply(1:k_max, function(k){kmeans(n2, k)$tot.withinss})
 qplot(x = 1:k_max, y = twcss, geom = 'line')
 
@@ -56,13 +54,56 @@ biplot(pca_n2, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
 
 # GGfortify-plot for PCA results
 
-autoplot(pam(n2, 2), frame = TRUE, frame.type = 'norm')
-autoplot(pam(n2, 3), frame = TRUE, frame.type = 'norm')
-autoplot(pam(n2, 4), frame = TRUE, frame.type = 'norm')
-autoplot(pam(n2, 5), frame = TRUE, frame.type = 'norm')
-autoplot(pam(n2, 6), frame = TRUE, frame.type = 'norm')
-autoplot(pam(n2, 7), frame = TRUE, frame.type = 'norm')
-autoplot(pam(n2, 8), frame = TRUE, frame.type = 'norm')
+autoplot(pam(n2, 2), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n2, 3), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n2, 4), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n2, 5), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n2, 6), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n2, 7), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n2, 8), frame = TRUE, frame.type = 'norm', label = TRUE)
+
+autoplot(fanny(n2, 2), frame = TRUE, label = TRUE)
+autoplot(fanny(n2, 3), frame = TRUE, label = TRUE)
+autoplot(fanny(n2, 4), frame = TRUE, label = TRUE)
+autoplot(fanny(n2, 5), frame = TRUE, label = TRUE)
+autoplot(fanny(n2, 6), frame = TRUE, label = TRUE)
+autoplot(fanny(n2, 7), frame = TRUE, label = TRUE)
+autoplot(fanny(n2, 8), frame = TRUE, label = TRUE)
+
+
+#### ONLY MUDBRICKS
+
+
+# Subset n3 containing only the mudbricks
+rownames(n2)
+n3 <- n2[-c(35,46,47,48,49,50,51,52), ]
+rownames(n3)
+
+# Calculate the total within sum of squares to find the optimal number of clusters
+k_max <- 8
+twcss <- sapply(1:k_max, function(k){kmeans(n3, k)$tot.withinss})
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+
+# PCA
+pca_n3 <- prcomp(n3)
+summary(pca_n3)
+
+biplot(pca_n3, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+
+# GGfortify-plot for PCA results
+
+autoplot(pam(n3, 2), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n3, 3), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n3, 4), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n3, 5), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n3, 6), frame = TRUE, frame.type = 'norm', label = TRUE)
+
+
+autoplot(fanny(n3, 2), frame = TRUE, label = TRUE)
+autoplot(fanny(n3, 3), frame = TRUE, label = TRUE)
+autoplot(fanny(n3, 4), frame = TRUE, label = TRUE)
+autoplot(fanny(n3, 5), frame = TRUE, label = TRUE)
+autoplot(fanny(n3, 6), frame = TRUE, label = TRUE)
 
 # HCA
 
