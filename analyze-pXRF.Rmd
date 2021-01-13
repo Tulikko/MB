@@ -27,7 +27,10 @@ n2 <- read.xlsx("data/z2-pXRF.xlsx", sep=";")
 # For correlation and PCA "Samples" must be rownames instead of factors
 rownames(n2) <- n2$Sample
 n2 <- n2 %>% select(-Sample)
-# n2 <- n2 %>% select(Ti, Mn, Fe, Ni, Cu, Zn, Sr, Zr)
+
+# Deleting Ni
+# colnames(n2)
+# n2 <- n2 %>% select(Ti, Mn, Fe, Cu, Zr)
 
 ## ALL SAMPLES, CONTAINING SOIL
 
@@ -97,6 +100,7 @@ autoplot(pam(n3, 3), frame = TRUE, frame.type = 'norm', label = TRUE)
 autoplot(pam(n3, 4), frame = TRUE, frame.type = 'norm', label = TRUE)
 autoplot(pam(n3, 5), frame = TRUE, frame.type = 'norm', label = TRUE)
 autoplot(pam(n3, 6), frame = TRUE, frame.type = 'norm', label = TRUE)
+autoplot(pam(n2, 7), frame = TRUE, frame.type = 'norm', label = TRUE)
 
 
 autoplot(fanny(n3, 2), frame = TRUE, label = TRUE)
@@ -104,6 +108,7 @@ autoplot(fanny(n3, 3), frame = TRUE, label = TRUE)
 autoplot(fanny(n3, 4), frame = TRUE, label = TRUE)
 autoplot(fanny(n3, 5), frame = TRUE, label = TRUE)
 autoplot(fanny(n3, 6), frame = TRUE, label = TRUE)
+autoplot(fanny(n2, 7), frame = TRUE, label = TRUE)
 
 # HCA
 
