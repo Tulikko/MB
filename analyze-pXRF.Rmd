@@ -103,7 +103,7 @@ autoplot(pam(n3, 6), frame = TRUE, frame.type = 'norm', label = TRUE)
 autoplot(pam(n2, 7), frame = TRUE, frame.type = 'norm', label = TRUE)
 
 
-autoplot(fanny(n3, 2), frame = TRUE, label = TRUE)
+autoplot(fanny(n3, 2), frame = TRUE, label = TRUE, shape = FALSE)
 autoplot(fanny(n3, 3), frame = TRUE, label = TRUE)
 autoplot(fanny(n3, 4), frame = TRUE, label = TRUE)
 autoplot(fanny(n3, 5), frame = TRUE, label = TRUE)
