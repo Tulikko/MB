@@ -15,11 +15,22 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Title
 
-Text
+set.seed(3)
+
+A random seed is set for reprodicibility
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Necessary libraries
 # Code for citating packages: citation("dplyr")
-library(dplyr); library(GGally); library(corrplot); library(tidyr); library(openxlsx); library(cluster); library(ggplot2); library(ggfortify)
+library(dplyr); 
+library(GGally); 
+library(corrplot); 
+library(tidyr); 
+library(openxlsx); 
+library(cluster); 
+library(ggplot2); 
+library(ggfortify); 
+library(pca3d)
 
 # Read data
 n2 <- read.xlsx("data/z2-pXRF.xlsx", sep=";")
@@ -59,19 +70,10 @@ biplot(pca_n2, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
 
 autoplot(pam(n2, 2), frame = TRUE, frame.type = 'norm', label = TRUE)
 autoplot(pam(n2, 3), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n2, 4), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n2, 5), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n2, 6), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n2, 7), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n2, 8), frame = TRUE, frame.type = 'norm', label = TRUE)
 
 autoplot(fanny(n2, 2), frame = TRUE, label = TRUE)
 autoplot(fanny(n2, 3), frame = TRUE, label = TRUE)
-autoplot(fanny(n2, 4), frame = TRUE, label = TRUE)
-autoplot(fanny(n2, 5), frame = TRUE, label = TRUE)
-autoplot(fanny(n2, 6), frame = TRUE, label = TRUE)
-autoplot(fanny(n2, 7), frame = TRUE, label = TRUE)
-autoplot(fanny(n2, 8), frame = TRUE, label = TRUE)
+
 
 
 #### ONLY MUDBRICKS
@@ -97,22 +99,32 @@ biplot(pca_n3, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
 
 autoplot(pam(n3, 2), frame = TRUE, frame.type = 'norm', label = TRUE)
 autoplot(pam(n3, 3), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n3, 4), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n3, 5), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n3, 6), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n2, 7), frame = TRUE, frame.type = 'norm', label = TRUE)
 
 
 autoplot(fanny(n3, 2), frame = TRUE, label = TRUE, shape = FALSE)
 autoplot(fanny(n3, 3), frame = TRUE, label = TRUE)
-autoplot(fanny(n3, 4), frame = TRUE, label = TRUE)
-autoplot(fanny(n3, 5), frame = TRUE, label = TRUE)
-autoplot(fanny(n3, 6), frame = TRUE, label = TRUE)
-autoplot(fanny(n2, 7), frame = TRUE, label = TRUE)
+
+#Visualize PC:s
+
+plot(pca_n3, type="lines")
+
+# 3D PCA plots
+
+#gr <- 
+#gr <- factor(metabo[,1])
+#pca3d(pca_n3, legend="topleft")
 
 # HCA
 
+# compute divisive hierarchical clustering
+hc4 <- diana(n3)
 
+# Divise coefficient; amount of clustering structure found
+hc4$dc
+## [1] 0.884993
+
+# plot dendrogram
+pltree(hc4, cex = 0.6, hang = -1, main = "Dendrogram of diana")
 
 ```
 
