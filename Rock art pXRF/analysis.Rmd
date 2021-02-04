@@ -166,7 +166,7 @@ summary(pca_P8)
 pca_P9 <- prcomp(nP[1:11])
 summary(pca_P9)
 
-pca_P10 <- prcomp(nP[12:19])
+pca_P10 <- prcomp(nP[c(8:12,14:19)])
 summary(pca_P10)
 
 ##
@@ -177,8 +177,8 @@ summary(pca_P10)
 biplot(pca_P1, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA All elements")
 autoplot(pca_P1, data=nP, colour='Type', shape = FALSE, label = TRUE,  main = "PCA All elements")
 
-biplot(pca_P4, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_P4")
-autoplot(pca_P4, data=nP, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_P4")
+biplot(pca_P2, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_P2")
+autoplot(pca_P2, data=nP, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_P2")
 
 biplot(pca_P6, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_P6")
 autoplot(pca_P6, data=nP, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_P6")
@@ -236,7 +236,7 @@ summary(pca_V8)
 pca_V9 <- prcomp(nV[1:11])
 summary(pca_V9)
 
-pca_V10 <- prcomp(nV[12:19])
+pca_V10 <- prcomp(nV[c(8:12,14:17)])
 summary(pca_V10)
 
 ##
@@ -255,6 +255,9 @@ autoplot(pca_V4, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "P
 
 biplot(pca_V7, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_V7")
 autoplot(pca_V7, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_V7")
+
+biplot(pca_V10, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_V10")
+autoplot(pca_V10, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_V10")
 
 # HCA
 # compute divisive hierarchical clustering
