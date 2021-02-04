@@ -247,11 +247,14 @@ summary(pca_V10)
 biplot(pca_V1, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA All elements")
 autoplot(pca_V1, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "PCA All elements")
 
-biplot(pca_V4, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_P4")
-autoplot(pca_V4, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_P4")
+biplot(pca_V3, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_V3")
+autoplot(pca_V3, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_V3")
 
-biplot(pca_V6, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_P6")
-autoplot(pca_V6, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_P6")
+biplot(pca_V4, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_V4")
+autoplot(pca_V4, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_V4")
+
+biplot(pca_V7, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA_V7")
+autoplot(pca_V7, data=nV, colour='Type', shape = FALSE, label = TRUE,  main = "PCA_V7")
 
 # HCA
 # compute divisive hierarchical clustering
