@@ -3,11 +3,10 @@ title: "pXRF analysis"
 author: "Uine Kailamäki"
 date: "04/01/2021"
 output: word_document
-fig_width: 12 
-fig_height: 10 
+
 ---
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, out.width = "100%"}
 # Necessary libraries
 # Code for citating packages: citation("dplyr")
 library(dplyr); 
@@ -21,17 +20,24 @@ library(ggfortify);
 library(pca3d)
 
 # Read data
-n2 <- read.xlsx("All_PCA2.xlsx", sep=";")
+n1 <- read.xlsx("All_PCA2.xlsx", sep=";")
 
 # For correlation and PCA "Samples" must be rownames instead of factors
-rownames(n2) <- n2$Sample
-n2 <- n2 %>% select(-Sample)
-n2 <- n2 %>% select(-Type)
+rownames(n1) <- n1$Sample
+n1 <- n1 %>% select(-Sample)
+n2 <- n1 %>% select(-Type)
 
 # n2$Type <- factor(n2$Type)
+colnames(n1)
+glimpse(n1)
 
-# Scale data, ignoring the first column "Type"
-n2<- scale(n2)
+# Scale data, n1 ignoring the first column "Type"
+n2 <- scale(n2)
+
+## n1_scaled <- scale(n1[2:14])
+## n1_temp <- as.data.frame(n1_scaled)
+## n1 <- mutate(n1_temp, "Type" = n1$Type)
+## n1 <- n1_temp
 
 # Visualize correlations
 cor(n2) %>% corrplot (type = "lower", tl.cex = 0.7, tl.pos="d", cl.pos="r")
@@ -47,10 +53,16 @@ qplot(x = 1:k_max, y = twcss, geom = 'line')
 pca_n2 <- prcomp(n2)
 summary(pca_n2)
 
-biplot(pca_n2, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+##
 
-autoplot(pca_n2, shape = FALSE, label = TRUE)
+biplot(prcomp(n1[2:13]), choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+autoplot(prcomp(n1[2:13]), data=n1, colour='Type', shape = FALSE, label = TRUE,  main = "Full data")
 
+biplot(prcomp(n1[2:5]), choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+autoplot(prcomp(n1[2:5]), data=n1, colour='Type', shape = FALSE, label = TRUE,  main = "MgO + Al2O3 + SiO2 + K2O")
+
+biplot(prcomp(n1[7:14]), choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+autoplot(prcomp(n1[7:14]), data=n1, colour='Type', shape = FALSE, label = TRUE,  main = "TiO2	+ MnO	+ Fe2O3 +	ZnO +	Rb2O + SrO + ZrO2 + BaO")
 
 # HCA
 # compute divisive hierarchical clustering
