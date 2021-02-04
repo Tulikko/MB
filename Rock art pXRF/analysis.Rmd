@@ -1,0 +1,68 @@
+---
+title: "pXRF analysis"
+author: "Uine Kailamäki"
+date: "04/01/2021"
+output: word_document
+fig_width: 12 
+fig_height: 10 
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Necessary libraries
+# Code for citating packages: citation("dplyr")
+library(dplyr); 
+library(GGally); 
+library(corrplot); 
+library(tidyr); 
+library(openxlsx); 
+library(cluster); 
+library(ggplot2); 
+library(ggfortify); 
+library(pca3d)
+
+# Read data
+n2 <- read.xlsx("All_PCA2.xlsx", sep=";")
+
+# For correlation and PCA "Samples" must be rownames instead of factors
+rownames(n2) <- n2$Sample
+n2 <- n2 %>% select(-Sample)
+n2 <- n2 %>% select(-Type)
+
+# n2$Type <- factor(n2$Type)
+
+# Scale data, ignoring the first column "Type"
+n2<- scale(n2)
+
+# Visualize correlations
+cor(n2) %>% corrplot (type = "lower", tl.cex = 0.7, tl.pos="d", cl.pos="r")
+ggpairs(n2)
+ggplot(n2)
+
+# Calculate the total within sum of squares to find the optimal number of clusters
+k_max <- 6
+twcss <- sapply(1:k_max, function(k){kmeans(n2, k)$tot.withinss})
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+
+# PCA
+pca_n2 <- prcomp(n2)
+summary(pca_n2)
+
+biplot(pca_n2, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+
+autoplot(pca_n2, shape = FALSE, label = TRUE)
+
+
+# HCA
+# compute divisive hierarchical clustering
+hc_n2 <- diana(n2)
+
+# Divise coefficient; amount of clustering structure found
+hc_n2$dc
+## [1] 0.884993
+
+# plot dendrogram
+pltree(hc_n2, cex = 0.6, hang = -1, main = "Dendrogram of diana")
+
+```
+
+
