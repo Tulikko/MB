@@ -38,10 +38,7 @@ n2 <- read.xlsx("data/z2-pXRF.xlsx", sep=";")
 # For correlation and PCA "Samples" must be rownames instead of factors
 rownames(n2) <- n2$Sample
 n2 <- n2 %>% select(-Sample)
-
-# Deleting Ni
-# colnames(n2)
-# n2 <- n2 %>% select(Ti, Mn, Fe, Cu, Zr)
+glimpse(n2)
 
 ## ALL SAMPLES, CONTAINING SOIL
 
@@ -110,9 +107,7 @@ plot(pca_n3, type="lines")
 
 # 3D PCA plots
 
-#gr <- 
-#gr <- factor(metabo[,1])
-#pca3d(pca_n3, legend="topleft")
+
 
 # HCA
 
@@ -125,6 +120,56 @@ hc4$dc
 
 # plot dendrogram
 pltree(hc4, cex = 0.6, hang = -1, main = "Dendrogram of diana")
+
+
+
+###### NEW PLOTS WITH CLASS INFO #######
+
+# PCA
+pca_01 <- prcomp(n2)
+summary(pca_01)
+
+pca_02 <- prcomp(n2[2:8])
+summary(pca_02)
+
+pca_03 <- prcomp(n2[9:19])
+summary(pca_03)
+
+pca_04 <- prcomp(n2[c(9:12,14:19)])
+summary(pca_04)
+
+pca_05 <- prcomp(n2[5:13])
+summary(pca_05)
+
+pca_06 <- prcomp(n2[8:19])
+summary(pca_06)
+
+pca_07 <- prcomp(n2[7:17])
+summary(pca_07)
+
+pca_08 <- prcomp(n2[8:17])
+summary(pca_08)
+
+pca_09 <- prcomp(n2[1:11])
+summary(pca_09)
+
+pca_10 <- prcomp(n2[12:19])
+summary(pca_10)
+
+##
+
+## biplot(prcomp(n1[1:19]), choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+## autoplot(prcomp(n1[1:19]), data=n1, colour='Type', shape = FALSE, label = TRUE,  main = "Full data")
+
+biplot(pca_01, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA All elements")
+autoplot(pca_01, data=n2, colour='Area', shape = FALSE, label = TRUE,  main = "PCA All elements")
+
+biplot(pca_03, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "9:19")
+autoplot(pca_03, data=n1, colour='Type', shape = FALSE, label = TRUE,  main = "9:19")
+
+biplot(pca_04, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "9:12,14:19")
+autoplot(pca_04, data=n1, colour='Type', shape = FALSE, label = TRUE,  main = "9:12,14:19")
+
 
 ```
 

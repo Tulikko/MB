@@ -236,7 +236,7 @@ summary(pca_V8)
 pca_V9 <- prcomp(nV[1:11])
 summary(pca_V9)
 
-pca_V10 <- prcomp(nV[c(8:12,14:17)])
+pca_V10 <- prcomp(nV[c(8:12,14:15,17)])
 summary(pca_V10)
 
 ##

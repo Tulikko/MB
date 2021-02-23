@@ -13,11 +13,11 @@ library(dplyr); library(openxlsx)
 
 # Read data
 
-Results <- read.xlsx("Results_C.xlsx", sep=";")
+Results <- read.xlsx("Results_AY.xlsx", sep=";")
 
 # Select which columns to keep
 
-keep_c <- c("Sample", 
+keep_c <- c("Sample", "Area",
             "MgO", "MgO;Err", 
             "Al2O3", "Al2O3;Err", 
             "SiO2",  "SiO2;Err", 
@@ -71,6 +71,7 @@ pxrf <- select(Results, one_of(keep_c))
 # Change "Sample" to a factor
 
 pxrf$Sample <- factor(pxrf$Sample)
+pxrf$Area <- factor(pxrf$Area)
 
 # Remove any rows containing 'ERROR' or 'TEST'
 
@@ -125,6 +126,11 @@ zz <- as.data.frame(scale(n))
 nn <- nn %>% mutate(sample = pxrf$Sample)
 zz <- zz %>% mutate(sample = pxrf$Sample)
 
+# Add column Area from original file
+
+nn <- nn %>% mutate(Area = pxrf$Area)
+zz <- zz %>% mutate(Area = pxrf$Area)
+
 # Averages by "sample" (this creates a new column "Group.1")
 
 avrg_n <- aggregate(nn, by = list(nn$sample), FUN = mean)
@@ -136,6 +142,8 @@ names(avrg_n)[names(avrg_n) == "Group.1"] <- "Sample"
 
 avrg_z <- avrg_z %>% select(-sample)
 names(avrg_z)[names(avrg_z) == "Group.1"] <- "Sample"
+
+
 
 
 ###############
