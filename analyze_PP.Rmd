@@ -33,27 +33,33 @@ library(ggfortify);
 library(pca3d)
 
 # Read data
-nn <- read.xlsx("data/Raw_PP.xlsx", sep=";")
+nn <- read.xlsx("data/PP-z2-pXRF.xlsx", sep=";")
+nn <- as.data.frame(nn)
+
+# Drop unuseable elements
+nn <- nn %>% select(-Al2O3)
+nn <- nn %>% select(-SiO2)
+nn <- nn %>% select(-P2O5)
+nn <- nn %>% select(-CaO)
 
 # For correlation and PCA "Samples" must be rownames instead of factors
-# Creating subsets n1 with all info and n2 with only numerical + rownames
+rownames(nn) <- nn$Sample
 n1 <- nn %>% select(-Sample)
-n2 <- n1 %>% select(-Type)
-n2 <- n2 %>% select(-Area)
+n2 <- n1 %>% select(-Area)
+n2 <- n2 %>% select(-Type)
 
-# Scale data, n1 ignoring the first column "Type"
-n2 <- as.data.frame(scale(n2))
+# Area as factor, cannot be used in PCA (select your columns when using n1)
 
-n1_temp <- n2 %>% mutate(Type = n1$Type, Sample = n1$Sample)
-rownames(n1_temp) <- n1$Sample
-n1_temp <- n1_temp %>% select(-Sample)
-n1 <- n1_temp
+n1$Area <- factor(n1$Area)
+n1$Type <- factor(n1$Type)
 
-## n1 <- n1_temp
-# n2$Type <- factor(n2$Type)
-colnames(n2)
+glimpse(n1)
+rownames(n1)
+colnames(n1)
+
 glimpse(n2)
 rownames(n2)
+colnames(n2)
 
 
 ## ALL SAMPLES, CONTAINING SOIL
