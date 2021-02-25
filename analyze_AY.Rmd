@@ -34,7 +34,7 @@ library(pca3d)
 
 
 # Read data
-nn <- read.xlsx("data/z2-pXRF-AY.xlsx", sep=";")
+nn <- read.xlsx("data/z2-pXRF-AY2.xlsx", sep=";")
 nn <- as.data.frame(nn)
 
 # Drop unuseable elements

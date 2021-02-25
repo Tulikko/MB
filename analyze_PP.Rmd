@@ -33,12 +33,28 @@ library(ggfortify);
 library(pca3d)
 
 # Read data
-n2 <- read.xlsx("data/z2-pXRF.xlsx", sep=";")
+nn <- read.xlsx("data/Results_PP.xlsx", sep=";")
 
 # For correlation and PCA "Samples" must be rownames instead of factors
-rownames(n2) <- n2$Sample
-n2 <- n2 %>% select(-Sample)
+# Creating subsets n1 with all info and n2 with only numerical + rownames
+n1 <- nn %>% select(-Sample)
+n2 <- n1 %>% select(-Type)
+n2 <- n2 %>% select(-Area)
+
+# Scale data, n1 ignoring the first column "Type"
+n2 <- as.data.frame(scale(n2))
+
+n1_temp <- n2 %>% mutate(Type = n1$Type, Sample = n1$Sample)
+rownames(n1_temp) <- n1$Sample
+n1_temp <- n1_temp %>% select(-Sample)
+n1 <- n1_temp
+
+## n1 <- n1_temp
+# n2$Type <- factor(n2$Type)
+colnames(n2)
 glimpse(n2)
+rownames(n2)
+
 
 ## ALL SAMPLES, CONTAINING SOIL
 

@@ -13,11 +13,11 @@ library(dplyr); library(openxlsx)
 
 # Read data
 
-Results <- read.xlsx("Results_AY.xlsx", sep=";")
+Results <- read.xlsx("Results_PP.xlsx", sep=";")
 
 # Select which columns to keep
 
-keep_c <- c("Sample", "Area",
+keep_c <- c("Sample", "Area", "Type",
             "MgO", "MgO;Err", 
             "Al2O3", "Al2O3;Err", 
             "SiO2",  "SiO2;Err", 
@@ -68,9 +68,9 @@ keep_c <- c("Sample", "Area",
 
 pxrf <- select(Results, one_of(keep_c))
 
-# Change "Sample" to a factor
+# Change "Type" and "Area" to factors
 
-pxrf$Sample <- factor(pxrf$Sample)
+pxrf$Type <- factor(pxrf$Type)
 pxrf$Area <- factor(pxrf$Area)
 
 # Remove any rows containing 'ERROR' or 'TEST'
@@ -131,19 +131,38 @@ zz <- zz %>% mutate(sample = pxrf$Sample)
 nn <- nn %>% mutate(Area = pxrf$Area)
 zz <- zz %>% mutate(Area = pxrf$Area)
 
+nn <- nn %>% mutate(Type = pxrf$Type)
+zz <- zz %>% mutate(Type = pxrf$Type)
+
+# Change "Type" and "Area" to factors
+
+nn$Type <- factor(pxrf$Type)
+nn$Area <- factor(pxrf$Area)
+
+zz$Type <- factor(pxrf$Type)
+zz$Area <- factor(pxrf$Area)
+
 # Averages by "sample" (this creates a new column "Group.1")
 
-avrg_n <- aggregate(nn, by = list(nn$sample), FUN = mean)
-avrg_z <- aggregate(zz, by = list(zz$sample), FUN = mean)
+avrg_n <- aggregate(nn, by = list(nn$sample, nn$Type, nn$Area), FUN = mean)
+avrg_z <- aggregate(zz, by = list(zz$sample, zz$Type, zz$Area), FUN = mean)
 
-# Remove original "sample", create new "Sample" from "Group.1", 
+# Create new "Sample" from "Group.1" etc.
+
 avrg_n <- avrg_n %>% select(-sample)
-names(avrg_n)[names(avrg_n) == "Group.1"] <- "Sample"
-
 avrg_z <- avrg_z %>% select(-sample)
+names(avrg_n)[names(avrg_n) == "Group.1"] <- "Sample"
 names(avrg_z)[names(avrg_z) == "Group.1"] <- "Sample"
 
+avrg_n <- avrg_n %>% select(-Type)
+avrg_z <- avrg_z %>% select(-Type)
+names(avrg_n)[names(avrg_n) == "Group.2"] <- "Type"
+names(avrg_z)[names(avrg_z) == "Group.2"] <- "Type"
 
+avrg_n <- avrg_n %>% select(-Area)
+avrg_z <- avrg_z %>% select(-Area)
+names(avrg_n)[names(avrg_n) == "Group.3"] <- "Area"
+names(avrg_z)[names(avrg_z) == "Group.3"] <- "Area"
 
 
 ###############
@@ -166,10 +185,10 @@ avrg_z2 <- avrg_z %>% select_if(not_any_na)
 # SAVING ANALYSIS DATASETS
 
 # Save analysis datasets as .txt and .xlsx
-write.xlsx(avrg_n1, file="n1-pXRF.xlsx")
-write.xlsx(avrg_n2, file="n2-pXRF.xlsx")
-write.xlsx(avrg_z1, file="z1-pXRF.xlsx")
-write.xlsx(avrg_z2, file="z2-pXRF.xlsx")
+write.xlsx(avrg_n1, file="PP-n1-pXRF.xlsx")
+write.xlsx(avrg_n2, file="PP-n2-pXRF.xlsx")
+write.xlsx(avrg_z1, file="PP-z1-pXRF.xlsx")
+write.xlsx(avrg_z2, file="PP-z2-pXRF.xlsx")
 
 
 ###############
