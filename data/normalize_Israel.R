@@ -13,7 +13,7 @@ library(dplyr); library(openxlsx)
 
 # Read data
 
-Results <- read.xlsx("Raw_Israel.xlsx", sep=";")
+Results <- read.xlsx("data/Raw_Israel.xlsx", sep=";")
 
 # Select which columns to keep
 
@@ -183,10 +183,10 @@ avrg_z2 <- avrg_z %>% select_if(not_any_na)
 # SAVING ANALYSIS DATASETS
 
 # Save analysis datasets as .txt and .xlsx
-write.xlsx(avrg_n1, file="Israel-n1-pXRF.xlsx")
-write.xlsx(avrg_n2, file="Israel-n2-pXRF.xlsx")
-write.xlsx(avrg_z1, file="Israel-z1-pXRF.xlsx")
-write.xlsx(avrg_z2, file="Israel-z2-pXRF.xlsx")
+write.xlsx(avrg_n1, file="data/Israel-n1-pXRF.xlsx")
+write.xlsx(avrg_n2, file="data/Israel-n2-pXRF.xlsx")
+write.xlsx(avrg_z1, file="data/Israel-z1-pXRF.xlsx")
+write.xlsx(avrg_z2, file="data/Israel-z2-pXRF.xlsx")
 
 
 ###############

@@ -13,7 +13,7 @@ library(dplyr); library(openxlsx)
 
 # Read data
 
-Results <- read.xlsx("Results_PP.xlsx", sep=";")
+Results <- read.xlsx("data/Raw_PP.xlsx", sep=";")
 
 # Select which columns to keep
 
@@ -185,10 +185,10 @@ avrg_z2 <- avrg_z %>% select_if(not_any_na)
 # SAVING ANALYSIS DATASETS
 
 # Save analysis datasets as .txt and .xlsx
-write.xlsx(avrg_n1, file="PP-n1-pXRF.xlsx")
-write.xlsx(avrg_n2, file="PP-n2-pXRF.xlsx")
-write.xlsx(avrg_z1, file="PP-z1-pXRF.xlsx")
-write.xlsx(avrg_z2, file="PP-z2-pXRF.xlsx")
+write.xlsx(avrg_n1, file="data/PP-n1-pXRF.xlsx")
+write.xlsx(avrg_n2, file="data/PP-n2-pXRF.xlsx")
+write.xlsx(avrg_z1, file="data/PP-z1-pXRF.xlsx")
+write.xlsx(avrg_z2, file="data/PP-z2-pXRF.xlsx")
 
 
 ###############
