@@ -9,7 +9,7 @@ fig_height: 10
 
 ```{r setup, include=FALSE}
 
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.width=12, fig.height=8)
 
 ```
 
@@ -31,6 +31,8 @@ library(cluster);
 library(ggplot2); 
 library(ggfortify); 
 library(pca3d)
+library(ggdendro) # dendrograms together with ggplot
+library(dendextend) # dendrograms - change parameters
 
 
 # Read data
@@ -65,7 +67,7 @@ colnames(n2)
 ## ALL DATA
 
 # Visualize correlations
-cor(n2) %>% corrplot (type = "lower", tl.cex = 0.7, tl.pos="d", cl.pos="r")
+cor(n2) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
 ggpairs(n2)
 ggplot(n2)
 
@@ -83,7 +85,7 @@ ggpairs(n2, mapping = aes(col = cluster_x))
 pca_n2 <- prcomp(n2)
 summary(pca_n2)
 
-biplot(pca_n2, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"))
+biplot(pca_n2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
 
 # GGfortify-plot for PCA results
 
@@ -103,7 +105,7 @@ hc4 <- diana(n2)
 hc4$dc
 
 # plot dendrogram
-pltree(hc4, cex = 0.6, hang = -1, main = "Dendrogram of diana")
+pltree(hc4, cex = 1, hang = -1, main = "Dendrogram of diana")
 
 
 
@@ -116,7 +118,7 @@ summary(pca_01)
 
 ##
 
-biplot(pca_01, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA all Ashdod-Yam samples")
+biplot(pca_01, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA all Ashdod-Yam samples")
 autoplot(pca_01, data=n1, colour='Area', shape = FALSE, label = TRUE,  main = "PCA all Ashdod-Yam samples")
 
 
@@ -136,22 +138,39 @@ summary(pca_02)
 
 ##
 
-biplot(pca_02, choices = 1:2, cex = c(0.5, 0.7), col = c("grey80", "deeppink2"), main = "PCA Ashdod-Yam MB samples")
+biplot(pca_02, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Ashdod-Yam MB samples")
 autoplot(pca_02, data=n3, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam MB samples")
+
+# HCA all
+
+glimpse(n1)
+dend <- 
+    n1[3:9] %>%                         # data
+    dist %>%                            # calculate a distance matrix
+    hclust(method = "ward.D2") %>%      # hierarchical clustering 
+    as.dendrogram %>%                   # turn the object into a dendrogram
+    set("branches_k_color", k=3) %>% 
+    set("branches_lwd", 1.2) %>%
+    set("labels_col", c("red", "black", "blue"), k=3) %>%    
+    set("labels_cex", 1) %>% 
+    set("leaves_pch", NA) 
+# plot the dend in usual "base" plotting engine:
+plot(dend)
 
 # HCA of only MB
 
-# compute divisive hierarchical clustering
-hc5 <- diana(n3)
-
-# Divise coefficient; amount of clustering structure found
-hc5$dc
-
-# plot dendrogram
-pltree(hc5, cex = 0.6, hang = -1, main = "Dendrogram of AY MB")
-
-
-
+dend <- 
+    n3[3:9] %>%                         # data
+    dist %>%                            # calculate a distance matrix
+    hclust(method = "ward.D2") %>%      # hierarchical clustering 
+    as.dendrogram %>%                   # turn the object into a dendrogram
+    set("branches_k_color", k=3) %>% 
+    set("branches_lwd", 1.2) %>%
+    set("labels_col", c("red", "black", "blue"), k=3) %>%    
+    set("labels_cex", 1) %>% 
+    set("leaves_pch", NA) 
+# plot the dend in usual "base" plotting engine:
+plot(dend)
 
 ```
 
