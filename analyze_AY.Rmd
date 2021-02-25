@@ -34,7 +34,7 @@ library(pca3d)
 
 
 # Read data
-nn <- read.xlsx("data/z2-pXRF-AY2.xlsx", sep=";")
+nn <- read.xlsx("data/AY-z2-pXRF.xlsx", sep=";")
 nn <- as.data.frame(nn)
 
 # Drop unuseable elements
@@ -47,10 +47,12 @@ nn <- nn %>% select(-CaO)
 rownames(nn) <- nn$Sample
 n1 <- nn %>% select(-Sample)
 n2 <- n1 %>% select(-Area)
+n2 <- n2 %>% select(-Type)
 
 # Area as factor, cannot be used in PCA (select your columns when using n1)
 
 n1$Area <- factor(n1$Area)
+n1$Type <- factor(n1$Type)
 
 glimpse(n1)
 rownames(n1)
@@ -108,7 +110,7 @@ pltree(hc4, cex = 0.6, hang = -1, main = "Dendrogram of diana")
 ###### NEW PLOTS WITH CLASS INFO #######
 
 # PCA (don't choose Area!)
-pca_01 <- prcomp(n1[2:8])
+pca_01 <- prcomp(n1[3:9])
 summary(pca_01)
 
 
@@ -124,11 +126,11 @@ autoplot(pca_01, data=n1, colour='Area', shape = FALSE, label = TRUE,  main = "P
 
 # Subset n3 containing only the mudbricks
 rownames(n1)
-n3 <- n1[-c(38:44), ]
+n3 <- n1[-c(47:53), ]
 rownames(n3)
 
 # PCA (don't choose Area!)
-pca_02 <- prcomp(n3[2:8])
+pca_02 <- prcomp(n3[3:9])
 summary(pca_02)
 
 

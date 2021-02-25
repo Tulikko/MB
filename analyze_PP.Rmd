@@ -33,7 +33,7 @@ library(ggfortify);
 library(pca3d)
 
 # Read data
-nn <- read.xlsx("data/Results_PP.xlsx", sep=";")
+nn <- read.xlsx("data/Raw_PP.xlsx", sep=";")
 
 # For correlation and PCA "Samples" must be rownames instead of factors
 # Creating subsets n1 with all info and n2 with only numerical + rownames
