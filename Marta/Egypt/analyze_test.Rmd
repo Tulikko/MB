@@ -22,23 +22,52 @@ A random seed is set for reprodicibility
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 
-library(openxlsx) # read xlsx files
-library(ggplot2) # required by ggtern
-install.packages("rlang")
-library(ggtern) # ternary plots
+library(openxlsx)           # read xlsx files
+library(ggplot2)            # required by ggtern
+# remove.packages("rlang")  # force update rlang if ggplot gives grief
+# install.packages("rlang")
+library(ggtern)             # ternary plots
 
 # Read data
 Egypt <- read.xlsx("egypt.xlsx", sep=";")
 
 
+
+# Barlots for granulometric results
+# library(ggplot2)
+ 
+# Stacked + percent
+# ggplot()
+
+
+
+
 # TERNARY PLOT for clay, silt and sand
+# Preparing sampele names as rownames for labels
+rownames(Egypt) <- Egypt$Sample 
+rownames(Egypt)
 
 #Building the static ternary plot
 
-ggtern(data=Egypt, aes(x=clay, y=silt, z=sand)) +
+ggtern(data=Egypt, aes(x=Clay, y=Sand, z=Silt, color=Unit)) +
   geom_point() +
   labs(title="Clay silt sand") +
-  theme_rgbw()
+  theme_rgbw() +
+  geom_text(aes(label=rownames(Egypt)), size=3, style='bold')
+
+ggtern(data=Egypt, aes(x=Clay, y=Sand, z=Silt, color=Unit)) +
+  geom_point(size=5) +
+  geom_mask() +
+  labs(title="Clay silt sand") +
+  theme_rgbw() +
+  geom_text(aes(label=rownames(Egypt)), size=3, color='black', style='bold')
+
+ggtern(data=Egypt, aes(x=Clay, y=Sand, z=Silt, color=Description)) +
+  labs(title="Clay silt sand") +
+  geom_mask() +
+  geom_point(size=5) +
+  geom_text(aes(label=Egypt$Sample), size=3, color='black')
+
 
 ```
 
