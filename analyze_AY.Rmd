@@ -33,6 +33,7 @@ library(ggfortify);
 library(pca3d)
 library(ggdendro) # dendrograms together with ggplot
 library(dendextend) # dendrograms - change parameters
+library(ggtern) # ternary plots
 
 
 # Read data
@@ -171,6 +172,16 @@ dend <-
     set("leaves_pch", NA) 
 # plot the dend in usual "base" plotting engine:
 plot(dend)
+
+
+# TERNARY PLOT for clay, silt and sand
+
+#Building the static ternary plot
+
+ggtern(data=data_x, aes(x=clay, y=silt, z=sand)) +
+  geom_point() +
+  labs(title="Clay silt sand") +
+  theme_rgbw()
 
 ```
 

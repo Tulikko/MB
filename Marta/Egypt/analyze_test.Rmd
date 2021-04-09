@@ -1,0 +1,45 @@
+---
+title: "pXRF analysis"
+author: "Uine Kailamäki"
+date: "11/27/2020"
+output: word_document
+fig_width: 12 
+fig_height: 10 
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, fig.width=12, fig.height=8)
+
+```
+
+## Title
+
+set.seed(3)
+
+A random seed is set for reprodicibility
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+library(openxlsx) # read xlsx files
+library(ggplot2) # required by ggtern
+install.packages("rlang")
+library(ggtern) # ternary plots
+
+# Read data
+Egypt <- read.xlsx("egypt.xlsx", sep=";")
+
+
+# TERNARY PLOT for clay, silt and sand
+
+#Building the static ternary plot
+
+ggtern(data=Egypt, aes(x=clay, y=silt, z=sand)) +
+  geom_point() +
+  labs(title="Clay silt sand") +
+  theme_rgbw()
+
+```
+
+
