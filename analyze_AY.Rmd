@@ -174,14 +174,6 @@ dend <-
 plot(dend)
 
 
-# TERNARY PLOT for clay, silt and sand
-
-#Building the static ternary plot
-
-ggtern(data=data_x, aes(x=clay, y=silt, z=sand)) +
-  geom_point() +
-  labs(title="Clay silt sand") +
-  theme_rgbw()
 
 ```
 
