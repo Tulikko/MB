@@ -1,6 +1,6 @@
 
 library(ggplot2)
-#cluster
+
 data <- read.csv("~/Desktop/R/Gourniaxrf.csv")
 
 require(graphics)
@@ -21,7 +21,9 @@ plot(clusters, labels=data1[,1], cex=0.6, hang=-1, main="Hierarchical Cluster An
 
 groups <- cutree(clusters, k=5)
 rect.hclust(clusters, k=5, border="red")
+
 ##WARD
+
 clusters <- hclust(dist(scaled.dat[, c(1, 2, 3, 4, 5, 6, 7)]), method = "ward.D2")
 par(mar=c(7,3,3,3)+1 )
 plot(clusters, labels=data1[,1], cex=0.5, hang=-1, main="Hierarchical Cluster Analysis", xlab="Distance: Square Euclidean, Cluster Method=Ward")
@@ -31,9 +33,12 @@ plot(clusters, labels=data1[,1], cex=0.5, hang=-1, main="Hierarchical Cluster An
 setwd("~/Desktop/R/cluster/HCA")
 
 dev.copy2pdf(file="ClusterHCAward.pdf", encoding="WinAnsi")
+
 ###############################################################################
+
 #per logtransfomed
 log10(data[, c(12, 14, 16, 24, 30, 32, 38)])
+
 #or
 ##
 

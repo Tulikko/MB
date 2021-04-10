@@ -1,19 +1,8 @@
 
-## Step 1: Tell R where you want any output (like graphs) saved. The command is called "set working drive." 
-## What you have to do is replace #$# with the file path to the folder of your choice. For example:
-## setwd("~/Desktop/Marta")
-
 setwd("~/Desktop/R/Graph")
-
-## Step 2: Open these packages which are already installed on your computer. Just highlight the two lines
-## of code and hit Apple + Enter
 
 library(devtools)
 library("factoextra")
-
-## Step 3: Import the spreadsheet with your data (R calls spreadsheets 'dataframes') 
-## Replace #$# with the filepath where the data is saved **in .csv format** For example:
-## data <- read.csv("~/Desktop/Marta/Rtest reduced.csv")
 
 data <- read.csv("~/Desktop/R/Gourniaxrf.csv")
 
