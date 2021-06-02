@@ -1,0 +1,63 @@
+---
+title: "Spatial Analysis and Data Exploration in History and Archaeology"
+author: "Uine Kailamäki"
+date: "05/2021"
+output:
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_depth: 2
+    fig_caption: true
+    fig_width: 8
+    fig_height: 6
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+This is my course page for the R exercises in the Spatial Analysis and Data Exploration in History and Archaeology course, University of Helsinki, lectured by Eljas Oksanen in the Spring of 2021.
+
+**How to create a course page:**
+
+You need to have R, RStudio and Git installed and Git linked to your Rstudio before this step.
+
+1) Create a new GitHub repository
+
+2) Open RStudio and create a new project by selecting:
+"File" - "New Project" - "Version Control" - "Git"
+and paste the web URL in the "Repository URL" box.
+
+3) Create a web page on GitHub:
+
+a) Go back to the GitHub repository.
+
+b) Open "Settings" and scroll to "GitHub Pages". From "Source" select "master branch".
+
+c) Now your course diary web page is online at
+github_username.github.io/repository_name
+
+```{r child = "week1/week1.Rmd"}
+```
+
+```{r child = "week2/week2.Rmd"}
+```
+
+```{r child = "week3/week3.Rmd"}
+```
+
+```{r child = "week4/week4.Rmd"}
+```
+
+```{r child = "week5/week5.Rmd"}
+```
+
+```{r child = "week6/week6.Rmd"}
+```
+
+```{r child = "week7/week7.Rmd"}
+```
+
+
+
