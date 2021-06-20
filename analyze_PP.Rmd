@@ -1,27 +1,18 @@
 ---
-title: "pXRF analysis"
+title: "Palaepaphos mudbrick analysis"
 author: "Uine Kailamäki"
-date: "11/27/2020"
-output: word_document
-reference_docx: style-reference.docx
-
+output: html_document
+fig_width: 12 
+fig_height: 10 
 ---
 
-```{r setup, include=FALSE}
 
-knitr::opts_chunk$set(echo = FALSE, fig.width=12, fig.height=8)
+## Palaepaphos
 
-```
+Introduction
 
-## Title
-
-set.seed(3)
-
-A random seed is set for reprodicibility
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-# Necessary libraries
-# Code for citating packages: citation("dplyr")
+```{r}
+# Libraries
 library(dplyr); 
 library(GGally); 
 library(corrplot); 
@@ -55,23 +46,13 @@ n2 <- n2 %>% select(-Type)
 n1$Area <- factor(n1$Area)
 n1$Type <- factor(n1$Type)
 
-glimpse(n1)
-rownames(n1)
-colnames(n1)
-
-glimpse(n2)
-rownames(n2)
-colnames(n2)
-
 
 ## ALL SAMPLES, CONTAINING SOIL
 
-# Visualize correlations
+# Visualize correlations between elements
 cor(n2) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
-ggpairs(n2)
-ggplot(n2)
 
-# Calculate the total within sum of squares to find the optimal number of clusters
+# Optimal number of clusters in K-means analysis
 k_max <- 8
 twcss <- sapply(1:k_max, function(k){kmeans(n2, k)$tot.withinss})
 qplot(x = 1:k_max, y = twcss, geom = 'line')
@@ -86,15 +67,6 @@ pca_n2 <- prcomp(n2)
 summary(pca_n2)
 
 biplot(pca_n2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
-
-# GGfortify-plot for PCA results
-
-autoplot(pam(n2, 2), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n2, 3), frame = TRUE, frame.type = 'norm', label = TRUE)
-
-autoplot(fanny(n2, 2), frame = TRUE, label = TRUE)
-autoplot(fanny(n2, 3), frame = TRUE, label = TRUE)
-
 
 
 #### ONLY MUDBRICKS
@@ -115,15 +87,6 @@ pca_n3 <- prcomp(n3)
 summary(pca_n3)
 
 biplot(pca_n3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
-
-# GGfortify-plot for PCA results
-
-autoplot(pam(n3, 2), frame = TRUE, frame.type = 'norm', label = TRUE)
-autoplot(pam(n3, 3), frame = TRUE, frame.type = 'norm', label = TRUE)
-
-
-autoplot(fanny(n3, 2), frame = TRUE, label = TRUE, shape = FALSE)
-autoplot(fanny(n3, 3), frame = TRUE, label = TRUE)
 
 #Visualize PC:s
 
