@@ -144,6 +144,25 @@ dend <-
 # plot the dend in usual "base" plotting engine:
 plot(dend)
 
+# Wards method (HCA) method 2: 
+HCA.ward5 <- hclust(dist(n3[3:9], method="euclid"), method="ward.D2")
+plot(HCA.ward5, main="Ward's method")
+rect.hclust(HCA.ward5, k=5)
+
+
+# Particle size
+
+particle <- read.xlsx("data/Particle-size.xlsx", sep=";")
+particle <- particle[1:4]
+
+# Average by Sample;Name
+avrg_p <- aggregate(particle, by=list(particle$Sample), FUN=mean)
+
+rownames(particle) <- particle$Sample
+
+summary(avrg_p)
+
+
 
 
 ```

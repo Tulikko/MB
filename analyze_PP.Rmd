@@ -24,6 +24,7 @@ library(ggfortify);
 library(pca3d);
 library(ggdendro) # dendrograms together with ggplot
 library(dendextend) # dendrograms - change parameters
+library(tidyverse) # rectangles around HClust
 
 # Read data
 nn <- read.xlsx("data/PP-z2-pXRF.xlsx", sep=";")
@@ -96,24 +97,9 @@ plot(pca_n3, type="lines")
 
 
 
-# HCA
-
+# HCA (only mudbricks)
 dend <- 
-    n1[3:8] %>%                         # data
-    dist %>%                            # calculate a distance matrix
-    hclust(method = "ward.D2") %>%      # hierarchical clustering 
-    as.dendrogram %>%                   # turn the object into a dendrogram
-    set("branches_k_color", k=3) %>% 
-    set("branches_lwd", 1.2) %>%
-    set("labels_col", c("red", "black", "blue"), k=3) %>%    
-    set("labels_cex", 1) %>% 
-    set("leaves_pch", NA) 
-# plot the dend in usual "base" plotting engine:
-plot(dend)
-
-# only mudbricks
-dend <- 
-    n3 %>%                         # data
+    n3 %>%                              # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
@@ -146,13 +132,15 @@ biplot(pca_02, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), m
 autoplot(pca_02, data=n4, colour='Area', shape = FALSE, label = TRUE,  main = "No nickel")
 
 
-# only new samples
+# only new MB samples
 
 n5 <- n1 %>% select(-Ni)
-n5 <- n5[-c(12:45), ]
+n5 <- n5[-c(12:53), ]
 pca_03 <- prcomp(n5[3:7])
 summary(pca_03)
 
+
+# HCA
 dend <- 
     n5 %>%                              # data
     dist %>%                            # calculate a distance matrix
@@ -166,10 +154,15 @@ dend <-
 # plot the dend in usual "base" plotting engine:
 plot(dend)
 
+biplot(pca_03, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "Only new MB samples")
 
-biplot(pca_03, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "Only new samples")
-autoplot(pca_03, data=n5, colour='Area', shape = FALSE, label = TRUE,  main = "Only new samples")
+autoplot(pca_03, data=n5, colour='Area', shape = FALSE, label = TRUE,  main = "Only new MB samples")
 
+
+# Wards method (HCA) method 2: 
+HCA.ward5 <- hclust(dist(n5, method="euclid"), method="ward.D2")
+plot(HCA.ward5, main="Ward's method")
+rect.hclust(HCA.ward5, k=3)
 
 
 ```
