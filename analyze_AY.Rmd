@@ -158,9 +158,8 @@ particle <- particle[1:4]
 # Average by Sample;Name
 avrg_p <- aggregate(particle, by=list(particle$Sample), FUN=mean)
 
-rownames(particle) <- particle$Sample
+head(avrg_p)
 
-summary(avrg_p)
 
 
 
