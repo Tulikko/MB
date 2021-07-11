@@ -19,15 +19,15 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width=12, fig.height
 
 Let's go!
 
-```{r child = "analyze_AY.Rmd"}
+```{r child = "results/ashdod-yam/analyze_AY.Rmd"}
 ```
 
-```{r child = "analyze_Israel.Rmd"}
+```{r child = "results/israel/analyze_Israel.Rmd"}
 ```
 
-```{r child = "analyze_PP.Rmd"}
+```{r child = "results/palaepaphos/analyze_PP.Rmd"}
 ```
 
-```{r child = "analyze_AA.Rmd"}
+```{r child = "results/artaxata/analyze_AA.Rmd"}
 ```
 
