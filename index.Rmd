@@ -17,7 +17,7 @@ output:
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width=12, fig.height=8)
 ```
 
-Let's go!
+Click the black "code" box on the right hand side to see or hide the R code behind analysis results.
 
 # Ashdod-Yam {.tabset}
 ```{r child = "results/ashdod-yam/index.Rmd"}
