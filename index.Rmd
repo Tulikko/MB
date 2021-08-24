@@ -17,7 +17,9 @@ output:
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width=12, fig.height=8)
 ```
 
-Click the black "code" box on the right hand side to see or hide the R code behind the analysis results and graphs.
+For the reader: Click the black "code" box on the right hand side to see or hide the R code behind the analysis results and graphs. The results are arranged to separate tabs by site/area so that it's easy to look at just the results of the site of interest, instead of scrolling accidentally down to a different site and getting confused.
+
+The results for each site consist of four parts: pXRF, particle size distribution, loss on ignition, and colorimetry.
 
 # Sites {.tabset}
 
