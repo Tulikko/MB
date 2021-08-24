@@ -19,19 +19,21 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width=12, fig.height
 
 Click the black "code" box on the right hand side to see or hide the R code behind the analysis results and graphs.
 
-# Ashdod-Yam {.tabset}
+# Sites {.tabset}
+
+## Ashdod-Yam 
 ```{r child = "results/ashdod-yam/index.Rmd"}
 ```
-# Ashdod-Yam: Byzantine {.tabset}
+## Ashdod-Yam: Byzantine 
 ```{r child = "results/byzantine/index.Rmd"}
 ```
-# Israel {.tabset}
+## Israel 
 ```{r child = "results/israel/index.Rmd"}
 ```
-# Palaepaphos {.tabset}
+## Palaepaphos 
 ```{r child = "results/palaepaphos/index.Rmd"}
 ```
-# Artaxata {.tabset}
+## Artaxata 
 ```{r child = "results/artaxata/index.Rmd"}
 ```
 
