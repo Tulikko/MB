@@ -41,7 +41,7 @@ library(dendextend); # dendrograms - change parameters
 library(ggtern) # ternary plots
 
 # Read the raw data
-pxrf <- read.xlsx("data/pxrf/Raw_AY.xlsx", sep=";")
+pxrf <- read.xlsx("data/pxrf_AY.xlsx", sep=";")
 
 # Remove any rows containing words 'ERROR' or 'TEST'
 pxrf <- filter(pxrf, !grepl('TEST', Sample))
@@ -204,7 +204,7 @@ Introduction
 ```{r}
 ## Particle size
 # Read and filter data
-particle <- read.xlsx("data/granulometry/AY_grain.xlsx", sep=";")
+particle <- read.xlsx("data/grain_AY.xlsx", sep=";")
 
 # Remove automatically created averages in order to include results from multiple runs for the same sample
 particle <- particle %>% 
@@ -217,10 +217,10 @@ particle <- particle %>% select(-Sample)
 names(particle)[names(particle) == "Group.1"] <- "Sample"
 
 # Saving the clean data as "AY_grain2"
-write.xlsx(particle, file="data/granulometry/AY_grain2.xlsx")
+write.xlsx(particle, file="data/grain/AY_grain2.xlsx")
 
 # Manually added Type and Context columns to AY_grain2 data: "AY_grain3"
-grain3 <- read.xlsx("data/granulometry/AY_grain3.xlsx", sep=";")
+grain3 <- read.xlsx("data/grain/AY_grain3.xlsx", sep=";")
 
 # Samples as rownames
 rownames(grain3) <- grain3$Sample 

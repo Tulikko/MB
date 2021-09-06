@@ -33,7 +33,7 @@ library(dendextend); # dendrograms - change parameters
 library(ggtern) # ternary plots
 
 # Read the raw data
-pxrf <- read.xlsx("data/pxrf/Raw_AA.xlsx", sep=";")
+pxrf <- read.xlsx("data/pxrf/pxrf_AA.xlsx", sep=";")
 
 # Remove any rows containing words 'ERROR' or 'TEST'
 pxrf <- filter(pxrf, !grepl('TEST', Sample))
@@ -182,7 +182,7 @@ Introduction
 
 ## Particle size
 # Read and filter data
-particle <- read.xlsx("data/granulometry/AA_grain.xlsx", sep=";")
+particle <- read.xlsx("data/granulometry/grain_AA.xlsx", sep=";")
 
 # Remove automatically created averages in order to include results from multiple runs for the same sample
 particle <- particle %>% 
