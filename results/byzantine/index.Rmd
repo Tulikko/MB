@@ -28,7 +28,7 @@ Introduction
 
 ## Particle size
 # Read and filter data
-particle <- read.xlsx("data/granulometry/AY_grain.xlsx", sep=";")
+particle <- read.xlsx("data/grain_AYB.xlsx", sep=";")
 
 # Remove automatically created averages in order to include results from multiple runs for the same sample
 particle <- particle %>% 
