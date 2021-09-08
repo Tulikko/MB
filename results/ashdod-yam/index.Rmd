@@ -34,6 +34,7 @@ library(tidyr);
 library(openxlsx); 
 library(cluster); 
 library(ggplot2); 
+library(ggrepel);
 library(ggfortify); 
 library(pca3d);
 library(ggdendro); # dendrograms together with ggplot
@@ -297,7 +298,22 @@ boxplot(loi$c550, loi$c950)
 # boxplot.stats gives us the lower whisker or minimum, the interquartile range of the middle (the second and fourth values), the median (third value) and the upper whisker or maximum. 
 boxplot.stats(loi$c950)
 
-# The two outliers are AY-53 (two different measurements to make sure the first batch wasn't misleading)
+# The two high carbonate outliers are both AY-53 (two different measurements to make sure the first batch wasn't misleading)
+
+# Removing duplicates from the next graph
+rownames(loi)
+loi <- subset(loi[1:47, ])
+
+ggplot(loi, 
+      aes(c550, c950, label = rownames(loi), colour = factor(context))) +
+      geom_point(size=2, aes(shape = factor(type))) +
+      geom_text_repel() + labs(title = "Organic vs. carbonate content") +
+      xlab('Organic LOI (%)') +
+      ylab('Carbonate LOI (%)') +
+      theme(axis.title = element_text())
+      
+
+
 
 
 ```
