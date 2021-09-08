@@ -14,20 +14,15 @@ output:
 Intro about the site
 
 ### pXRF
-
 ```{r child = "AY_pxrf.Rmd"}
 ```
 ### Grain size analysis
-
 ```{r child = "AY_grain.Rmd"}
 ```
 ### Loss on ignition
-
 ```{r child = "AY_loi.Rmd"}
 ```
-
 ### Colorimetry
-
 ```{r child = "AY_color.Rmd"}
 ```
 
