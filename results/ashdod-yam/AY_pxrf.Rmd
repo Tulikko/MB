@@ -1,0 +1,203 @@
+---
+title: "Ashdod-Yam mudbrick analysis"
+author: "Uine Kailamäki"
+output:
+  html_document:
+    theme: cosmo
+    fig_caption: true
+    fig_width: 12
+    fig_height: 8 
+    code_folding: hide
+  
+---
+
+
+### pXRF
+
+From literature we can identify three rough classes of elements that could be used to analyze mudbricks from pXRF results: 
+
+Good: Rb, Sr, Y, Zr, Nb, Th, Pb, Cu, Zn, Fe \
+Neutral: V, Cr, Co, Ni, Ca, Ti \
+Bad: Na, P, Ba (+ Ca, Al)
+
+The "bad" elements were excluded from the pXRF results from the get-go. After scaling and averaging the remaining values we ended up with two analysis datasets: **"pxrf_all"** that contains all the elements that have non-zero results, and **"pxrf_no_na"**, in which all the elements that have even one NA result are omitted.  
+
+We end up with 20 elements in the "pxrf_all" dataset, and 12 elements in the "pxrf_no_na" dataset.
+
+
+```{r}
+# Libraries
+library(dplyr); 
+library(GGally); 
+library(corrplot); 
+library(tidyr); 
+library(openxlsx); 
+library(cluster); 
+library(ggplot2); 
+library(ggrepel);
+library(ggfortify); 
+library(pca3d);
+library(ggdendro); # dendrograms together with ggplot
+library(dendextend); # dendrograms - change parameters
+library(ggtern) # ternary plots
+
+# Read the raw data
+pxrf <- read.xlsx("data/pxrf_AY.xlsx", sep=";")
+
+# Remove any rows containing words 'ERROR' or 'TEST'
+pxrf <- filter(pxrf, !grepl('TEST', Sample))
+pxrf <- filter(pxrf, !grepl('ERROR', Sample))
+
+# Turn any "LOD":s and missing values to "NA":s to allow scaling
+values <- c("MgO", "Al2O3", "SiO2", 
+            "S", "Cl", "K2O", "CaO", "Ti", "V", "Cr", 
+            "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "As", 
+            "Se", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", 
+            "Rh", "Pd", "Ag", "Cd", "Sn", "Sb", 
+            "La", "Ce", "Hf", "Ta", "W", "Pt", "Au", 
+            "Hg", "Tl", "Pb", "Bi", "Th", "U")
+
+pxrf_NA <- select(pxrf, one_of(values))
+pxrf_NA <- pxrf_NA %>% mutate_if(is.character,as.numeric)
+
+# Scaling the data with standard z-score method
+scaled_pxrf <- as.data.frame(scale(pxrf_NA))
+
+# Average data by "Sample", "Area" and "Type" columns from the original dataset
+average_pxrf <- aggregate(scaled_pxrf, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
+
+# Assign sample names as row names, and rename the other newly created columns back to "Type" and "Area" for clarity
+rownames(average_pxrf) <- average_pxrf$Group.1
+average_pxrf <- average_pxrf %>% select(-Group.1)
+names(average_pxrf)[names(average_pxrf) == "Group.2"] <- "Area"
+names(average_pxrf)[names(average_pxrf) == "Group.3"] <- "Type"
+
+# Change "Type" and "Area" to factors
+average_pxrf$Type <- factor(average_pxrf$Type)
+average_pxrf$Area <- factor(average_pxrf$Area)
+
+# Removing columns that only have NA values
+all_na <- function(x) any(!is.na(x))
+pxrf_all <- average_pxrf %>% select_if(all_na)
+
+# Removing columns if they contain any NA values at all
+any_na <- function(x) all(!is.na(x))
+pxrf_no_na <- average_pxrf %>% select_if(any_na)
+```
+
+**pxrf_no_na**: 
+
+```{r}
+glimpse(pxrf_no_na)
+```
+
+**pxrf_all**: 
+
+```{r}
+glimpse(pxrf_all)
+```
+
+### pXRF: correlations
+
+Introduction
+
+```{r}
+# Drop the more dubious elements
+pxrf_1 <- pxrf_no_na %>% select(-Al2O3)
+pxrf_1 <- pxrf_1 %>% select(-CaO)
+
+# Visualize correlations between elements
+cor(pxrf_1[3:12]) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
+
+# Optimal number of clusters in K-means analysis: 2
+k_max <- 8
+twcss <- sapply(1:k_max, function(k){kmeans(pxrf_1[3:12], k)$tot.withinss})
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+
+# K-means clustering in ggpairs: 2 clusters
+km <-kmeans(pxrf_1[3:12], centers = 2)
+cluster_x <- as.factor(km$cluster)
+ggpairs(pxrf_1, mapping = aes(col = cluster_x))
+```
+
+### pXRF: PCA
+
+PCA with only the no-NA:s elements
+
+```{r}
+# Elements with no NA values at all
+colnames(pxrf_no_na)
+
+# PCA
+pca_1 <- prcomp(pxrf_1[3:12])
+summary(pca_1)
+
+# PCA1 plots
+biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Ashdod-Yam elements")
+
+autoplot(pca_1, data=pxrf_1, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam grouped by area")
+
+autoplot(pca_1, data=pxrf_1, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam grouped by sample type")
+```
+ 
+PCA with all the feasible elements
+
+```{r}
+# Elements that have at least one viable value
+colnames(pxrf_all)
+
+# PCA with NA:s converted to zeros
+pxrf_all[is.na(pxrf_all)] <- 0
+
+pca_2 <- prcomp(pxrf_all[3:22])
+summary(pca_2)
+
+# PCA2 plots
+biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Ashdod-Yam more elements")
+
+autoplot(pca_1, data=pxrf_1, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam more elements grouped by area")
+
+autoplot(pca_1, data=pxrf_1, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam more elements grouped by sample type")
+
+```
+
+### pXRF: HCA
+
+Introduction
+
+```{r}
+# HCA
+
+# compute divisive hierarchical clustering
+hc4 <- diana(pxrf_1[3:12])
+
+# Divise coefficient; amount of clustering structure found
+hc4$dc
+
+# Diana dendrogram
+pltree(hc4, cex = 1, hang = -1, main = "Dendrogram of diana")
+
+# HCA dendrogam 1
+dend <- 
+    pxrf_1[3:12] %>%                    # data
+    dist %>%                            # calculate a distance matrix
+    hclust(method = "ward.D2") %>%      # hierarchical clustering 
+    as.dendrogram %>%                   # turn the object into a dendrogram
+    set("branches_k_color", k=5) %>% 
+    set("branches_lwd", 1.2) %>%
+    set("labels_col", c("red", "black", "blue"), k=5) %>%    
+    set("labels_cex", 1) %>% 
+    set("leaves_pch", NA) 
+# plot the dend in usual "base" plotting engine:
+plot(dend)
+
+
+# HCA dendrogam 2: 
+HCA.ward5 <- hclust(dist(pxrf_1[3:12], method="euclid"), method="ward.D2")
+plot(HCA.ward5, main="Ward's method")
+rect.hclust(HCA.ward5, k=5)
+```
+
+
+
+

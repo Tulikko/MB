@@ -41,7 +41,7 @@ particle <- particle %>% select(-Sample)
 names(particle)[names(particle) == "Group.1"] <- "Sample"
 
 # Saving the clean data as "AY_grain2"
-write.xlsx(particle, file="data/granulometry/AY_grain2.xlsx")
+## write.xlsx(particle, file="data/granulometry/AY_grain2.xlsx")
 
 # Manually added Type and Context columns to AY_grain2 data: "AY_grain3"
 grain3 <- read.xlsx("data/granulometry/AY_grain3.xlsx", sep=";")

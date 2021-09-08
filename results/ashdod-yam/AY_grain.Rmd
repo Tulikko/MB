@@ -1,0 +1,158 @@
+---
+title: "Ashdod-Yam mudbrick analysis"
+author: "Uine Kailamäki"
+output:
+  html_document:
+    theme: cosmo
+    fig_caption: true
+    fig_width: 12
+    fig_height: 8 
+    code_folding: hide
+  
+---
+
+### Particle size
+
+```{r}
+# Libraries
+library(dplyr); 
+library(GGally); 
+library(corrplot); 
+library(tidyr); 
+library(openxlsx); 
+library(cluster); 
+library(ggplot2); 
+library(ggrepel);
+library(ggfortify); 
+library(pca3d);
+library(ggdendro); # dendrograms together with ggplot
+library(dendextend); # dendrograms - change parameters
+library(ggtern) # ternary plots
+
+
+## Particle size
+# Read and filter data
+particle <- read.xlsx("data/grain_AY.xlsx", sep=";")
+
+# Remove automatically created averages in order to include results from multiple runs for the same sample
+particle <- particle %>% 
+  filter(!grepl('Average', Sample)) %>% 
+  filter(!grepl('test', Sample))
+
+# Average by sample name
+particle <- aggregate(particle, by=list(particle$Sample), FUN=mean)
+particle <- particle %>% select(-Sample)
+names(particle)[names(particle) == "Group.1"] <- "Sample"
+
+# Saving the clean data as "AY_grain2"
+## write.xlsx(particle, file="data/grain/AY_grain2.xlsx")
+
+# Manually added Type and Context columns to AY_grain2 data: "AY_grain3"
+grain3 <- read.xlsx("data/grain/AY_grain3.xlsx", sep=";")
+
+# Samples as rownames
+rownames(grain3) <- grain3$Sample 
+
+# Scaling clay-silt-sand portions to values between 0 and 1
+## Otherwise the differences in low clay percentages are lost
+normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-min(x, na.rm=TRUE))}
+
+grain <- as.data.frame(apply(grain3[3:5], 2, normalize))
+
+# Ternary plots
+
+ggtern(data=grain, aes(x=Clay, y=Sand, z=Silt, color=grain3$Context)) +
+  labs(title="Clay silt sand") +
+  theme_rgbw() +
+  theme_nomask() +
+  geom_point(size=0) +
+  geom_text(aes(label=rownames(grain)), size=3)
+
+ggtern(data=grain, aes(x=Clay, y=Sand, z=Silt, color=grain3$Context)) +
+  labs(title="Clay silt sand") +
+  theme_rgbw() +
+  theme_nomask() +
+  geom_point(size=2)
+
+ggtern(data=grain, aes(x=Clay, y=Sand, z=Silt, color=grain3$Type)) +
+  labs(title="Clay silt sand") +
+  theme_nomask() +
+  geom_mask() +
+  geom_point(size=2) 
+
+
+```
+
+### LOI
+
+We did loss on ignition analysis both in the traditional manual method and with a modern TGA for comparison.
+
+```{r}
+loi <- read.xlsx("data/loi_AY.xlsx", sep=";")
+tga <- read.xlsx("data/tga_AY.xlsx", sep=";")
+
+glimpse(loi)
+glimpse(tga)
+
+# Remove rows containing words 'kekkila' (internal standard)
+tga <- filter(tga, !grepl('kekkila', Name))
+
+# Sample names as rownames
+rownames(loi) <- loi$sample
+rownames(tga) <- tga$Name
+
+# Creating new columns for analysis by subtracting crucible mass;
+# "dry" (sample mass after drying)
+# "c550" (sample mass after 550 C)
+# "c950" (sample mass after 950 C)
+loi$dry <- (loi$dry_weight - loi$crucible)
+loi$c550mass <- (loi$after_550_C - loi$crucible)
+loi$c950mass <- (loi$after_950_C - loi$crucible)
+
+# Converting values to percentages
+loi$c550 <- (loi$dry - loi$c550mass)/(loi$dry) * 100
+loi$c950 <- (loi$c550mass - loi$c950mass)/(loi$c550mass) * 100
+
+# Total distribution of LOI in 550 C (1) and 950 C (2)
+boxplot(loi$c550, loi$c950)
+
+# boxplot.stats gives us the lower whisker or minimum, the interquartile range of the middle (the second and fourth values), the median (third value) and the upper whisker or maximum. 
+boxplot.stats(loi$c950)
+
+# The two high carbonate outliers are both AY-53 (two different measurements to make sure the first batch wasn't misleading)
+
+# Removing duplicates from the next graph
+rownames(loi)
+loi <- subset(loi[1:47, ])
+
+ggplot(loi, 
+      aes(c550, c950, label = rownames(loi), colour = factor(context))) +
+      geom_point(size=2, aes(shape = factor(type))) +
+      geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
+      xlab('Organic LOI (%)') +
+      ylab('Carbonate LOI (%)') +
+      theme(axis.title = element_text())
+      
+ggplot(loi, 
+      aes(c550, c950)) +
+      geom_point(size=2, aes(shape = factor(type), colour = factor(context))) +
+      labs(title = "Organic vs. carbonate content") +
+      xlab('Organic LOI (%)') +
+      ylab('Carbonate LOI (%)') +
+      theme(axis.title = element_text())
+
+
+
+
+```
+
+### Colorimetry
+
+Introduction
+
+```{r}
+
+```
+
+
+

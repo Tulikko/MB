@@ -31,44 +31,72 @@ library(dendextend) # dendrograms - change parameters
 library(tidyverse) # rectangles around HClust
 
 # Read data
-nn <- read.xlsx("data/pxrf/PP-z2-pXRF.xlsx", sep=";")
-nn <- as.data.frame(nn)
+pxrf <- read.xlsx("data/pxrf_PP.xlsx", sep=";")
 
-# Drop unuseable elements
-# nn <- nn %>% select(-Al2O3)
-# nn <- nn %>% select(-SiO2)
-# nn <- nn %>% select(-P2O5)
-# nn <- nn %>% select(-CaO)
+# Remove any rows containing words 'ERROR' or 'TEST'
+pxrf <- filter(pxrf, !grepl('TEST', Sample))
+pxrf <- filter(pxrf, !grepl('ERROR', Sample))
 
-# For correlation and PCA "Samples" must be rownames instead of factors
-rownames(nn) <- nn$Sample
-n1 <- nn %>% select(-Sample)
-n2 <- n1 %>% select(-Area)
-n2 <- n2 %>% select(-Type)
+# Turn any "LOD":s and missing values to "NA":s to allow scaling
+values <- c("MgO", "Al2O3", "SiO2", 
+            "S", "Cl", "K2O", "CaO", "Ti", "V", "Cr", 
+            "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "As", 
+            "Se", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", 
+            "Rh", "Pd", "Ag", "Cd", "Sn", "Sb", 
+            "La", "Ce", "Hf", "Ta", "W", "Pt", "Au", 
+            "Hg", "Tl", "Pb", "Bi", "Th", "U")
 
-# Area as factor, cannot be used in PCA (select your columns when using n1)
+pxrf_NA <- select(pxrf, one_of(values))
+pxrf_NA <- pxrf_NA %>% mutate_if(is.character,as.numeric)
 
-n1$Area <- factor(n1$Area)
-n1$Type <- factor(n1$Type)
+# Scaling the data with standard z-score method
+scaled_pxrf <- as.data.frame(scale(pxrf_NA))
+
+# Average data by "Sample", "Area" and "Type" columns from the original dataset
+average_pxrf <- aggregate(scaled_pxrf, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
+
+# Assign sample names as row names, and rename the other newly created columns back to "Type" and "Area" for clarity
+rownames(average_pxrf) <- average_pxrf$Group.1
+average_pxrf <- average_pxrf %>% select(-Group.1)
+names(average_pxrf)[names(average_pxrf) == "Group.2"] <- "Area"
+names(average_pxrf)[names(average_pxrf) == "Group.3"] <- "Type"
+
+# Change "Type" and "Area" to factors
+average_pxrf$Type <- factor(average_pxrf$Type)
+average_pxrf$Area <- factor(average_pxrf$Area)
+
+# Removing columns that only have NA values
+all_na <- function(x) any(!is.na(x))
+pxrf_all <- average_pxrf %>% select_if(all_na)
+
+# Removing columns if they contain any NA values at all
+any_na <- function(x) all(!is.na(x))
+pxrf_no_na <- average_pxrf %>% select_if(any_na)
+
+glimpse(pxrf_no_na)
+glimpse(pxrf_all)
 
 
-## ALL SAMPLES, CONTAINING SOIL
+## CORRELATIONS
 
 # Visualize correlations between elements
-cor(n2) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
+cor(pxrf_no_na[3:8]) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
 
-# Optimal number of clusters in K-means analysis
+# Cluster analysis
+
+# Optimal number of clusters in K-means analysis: 2
 k_max <- 8
-twcss <- sapply(1:k_max, function(k){kmeans(n2, k)$tot.withinss})
+twcss <- sapply(1:k_max, function(k){kmeans(pxrf_no_na[3:8], k)$tot.withinss})
 qplot(x = 1:k_max, y = twcss, geom = 'line')
 
-# Clustering in ggpairs
-km <-kmeans(n2, centers = 2)
+# K-means clustering in ggpairs: 2 clusters
+km <-kmeans(pxrf_no_na[3:8], centers = 2)
 cluster_x <- as.factor(km$cluster)
-ggpairs(n2, mapping = aes(col = cluster_x))
+ggpairs(pxrf_no_na[3:8], mapping = aes(col = cluster_x))
+
 
 # PCA
-pca_n2 <- prcomp(n2)
+pca_n2 <- prcomp(pxrf_no_na[3:8])
 summary(pca_n2)
 
 biplot(pca_n2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
@@ -178,7 +206,7 @@ Introduction
 ```{r}
 ## Particle size
 # Read and filter data
-particle <- read.xlsx("data/granulometry/PP_grain.xlsx", sep=";")
+particle <- read.xlsx("data/grain_PP.xlsx", sep=";")
 
 # Remove automatically created averages in order to include results from multiple runs for the same sample
 particle <- particle %>% 
@@ -191,7 +219,7 @@ particle <- particle %>% select(-Sample)
 names(particle)[names(particle) == "Group.1"] <- "Sample"
 
 # Saving the clean data as "PP_grain2"
-write.xlsx(particle, file="data/granulometry/PP_grain2.xlsx")
+## write.xlsx(particle, file="data/granulometry/PP_grain2.xlsx")
 
 # Manually added Type and Context columns to PP_grain2 data: "PP_grain3"
 grain3 <- read.xlsx("data/granulometry/PP_grain3.xlsx", sep=";")
