@@ -15,28 +15,47 @@ output:
 ```{r}
 # Libraries
 library(dplyr); 
-library(GGally); 
-library(corrplot); 
-library(tidyr); 
-library(openxlsx); 
-library(cluster); 
 library(ggplot2); 
 library(ggrepel);
-library(ggfortify); 
-library(pca3d);
-library(ggdendro); # dendrograms together with ggplot
-library(dendextend); # dendrograms - change parameters
-library(ggtern) # ternary plots
-
-
+library(rgl);
+library(plot3D);
+library(colordistance)
 
 ```
 
-### Colorimetry
-
-Introduction
+Colorimetry
 
 ```{r}
+color1 <- read.table("data/color_AY.txt", header = TRUE, sep = "\t", dec = ",")
+rownames(color1) <- color1$Data.Name
+color <- subset(color1[, 3:5])
+summary(color)
+
+ggplot(color, 
+      aes(a, b, label = rownames(color))) +
+      geom_point(size=2) +
+      geom_text_repel(size=3) + 
+      labs(title = "Color") +
+      xlab("a D65") +
+      ylab("b D65") 
+
+ggplot(color1,
+      aes(X, L, label = rownames(color))) +
+      geom_point(size=2) +
+      geom_text_repel(size=3) +     
+      labs(title = "Luminance") +
+      ylab("L* (D65)") +
+      xlab("Sample number") 
+
+# Simple 3D plot
+plot3d(color$L, color$a, color$b)
+
+# Colorful 3D plot with drop lines
+scatter3D(color$L, color$a, color$b, 
+          phi = 0, bty = "g",  type = "h", 
+          ticktype = "detailed", pch = 19, cex = 0.5)
+text3D(color$L, color$a, color$b,  labels = rownames(color),
+        add = TRUE, colkey = FALSE, cex = 0.5)
 
 ```
 
