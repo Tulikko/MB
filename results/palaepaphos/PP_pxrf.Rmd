@@ -11,8 +11,6 @@ output:
 ---
 
 
-### pXRF
-
 Introduction
 
 ```{r}
@@ -26,10 +24,16 @@ library(cluster);
 library(ggplot2); 
 library(ggfortify); 
 library(pca3d);
-library(ggdendro) # dendrograms together with ggplot
-library(dendextend) # dendrograms - change parameters
+library(FactoMineR); # fast PCA graphs
+library(ggdendro); # dendrograms together with ggplot
+library(dendextend); # dendrograms - change parameters
 library(tidyverse) # rectangles around HClust
 
+```
+
+Data preparation
+
+```{r}
 # Read data
 pxrf <- read.xlsx("data/pxrf_PP.xlsx", sep=";")
 
@@ -49,11 +53,8 @@ values <- c("MgO", "Al2O3", "SiO2",
 pxrf_NA <- select(pxrf, one_of(values))
 pxrf_NA <- pxrf_NA %>% mutate_if(is.character,as.numeric)
 
-# Scaling the data with standard z-score method
-scaled_pxrf <- as.data.frame(scale(pxrf_NA))
-
 # Average data by "Sample", "Area" and "Type" columns from the original dataset
-average_pxrf <- aggregate(scaled_pxrf, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
+average_pxrf <- aggregate(pxrf_NA, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
 
 # Assign sample names as row names, and rename the other newly created columns back to "Type" and "Area" for clarity
 rownames(average_pxrf) <- average_pxrf$Group.1
@@ -73,143 +74,146 @@ pxrf_all <- average_pxrf %>% select_if(all_na)
 any_na <- function(x) all(!is.na(x))
 pxrf_no_na <- average_pxrf %>% select_if(any_na)
 
-glimpse(pxrf_no_na)
-glimpse(pxrf_all)
+# Datasets with all the samples, including soil and old mudbrick samples
+summary(pxrf_no_na)
+summary(pxrf_all)
+
+# Datasets with only our new mudbrick samples (no soil or previously published ones)
+MB_nona <- pxrf_no_na[c(1:11), ]
+MB_all <- pxrf_all[c(1:11), ]
+
+# Removing As, Nb, Rh, Ag and Pb as they have almost no viable measurement values
+MB_all <- MB_all %>% 
+        select(-As) %>% 
+        select(-Nb) %>% 
+        select(-Rh) %>%   
+        select(-Ag) %>% 
+        select(-Pb) 
+
+summary(MB_nona)
+summary(MB_all)
 
 ```
 
-Elemental correlations and K-means cluster analysis
+Elemental correlations in new mudbrick samples
 
 ```{r}
-## CORRELATIONS
-
 # Visualize correlations between elements
-cor(pxrf_no_na[3:8]) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
+cor(MB_all[3:20]) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
+```
 
-# Cluster analysis
+K-means cluster analysis
+
+```{r}
 
 # Optimal number of clusters in K-means analysis: 2
 k_max <- 8
-twcss <- sapply(1:k_max, function(k){kmeans(pxrf_no_na[3:8], k)$tot.withinss})
+twcss <- sapply(1:k_max, function(k){kmeans(MB_nona[3:8], k)$tot.withinss})
 qplot(x = 1:k_max, y = twcss, geom = 'line')
 
 # K-means clustering in ggpairs: 2 clusters
-km <-kmeans(pxrf_no_na[3:8], centers = 2)
+km <-kmeans(MB_nona[3:8], centers = 2)
 cluster_x <- as.factor(km$cluster)
-ggpairs(pxrf_no_na[3:8], mapping = aes(col = cluster_x))
-
+ggpairs(MB_nona[3:8], mapping = aes(col = cluster_x))
 
 ```
 
-PCA analysis
+### pXRF: PCA
+
+PCA with only the no-NA:s elements
 
 ```{r}
 
-# PCA
-pca_n2 <- prcomp(pxrf_no_na[3:8])
-summary(pca_n2)
+# PCA for only non-NA elements
+colnames(MB_nona)
+pca_1 <- prcomp(MB_nona[3:8], scale = TRUE, center = TRUE)
+summary(pca_1)
 
-biplot(pca_n2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
+biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
+autoplot(pca_1, data=MB_nona, colour="red", shape = FALSE, label = TRUE,  main = "PCA Palaepaphos 1: no NA:s at all")
+PCA(MB_nona[3:8])
 
+```
 
-#### ONLY MUDBRICKS
+PCA with all the feasible elements
 
+```{r}
+# NA:s converted to zeros
+MB_all[is.na(MB_all)] <- 0
 
-# Subset n3 containing only the mudbricks
-rownames(n2)
-n3 <- n2[-c(46:53), ]
-rownames(n3)
+colnames(MB_all)
+pca_2 <- prcomp((MB_all[3:20]), scale = TRUE, center = TRUE)
+summary(pca_2)
 
-# Calculate the total within sum of squares to find the optimal number of clusters
-k_max <- 8
-twcss <- sapply(1:k_max, function(k){kmeans(n3, k)$tot.withinss})
-qplot(x = 1:k_max, y = twcss, geom = 'line')
+biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
+autoplot(pca_2, data=MB_all, colour="red", shape = FALSE, label = TRUE,  main = "PCA Palaepaphos 2: NA:s permitted")
+PCA(MB_all[3:20])
 
-# PCA
-pca_n3 <- prcomp(n3)
-summary(pca_n3)
+```
 
-biplot(pca_n3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
+PCA with all the Mudbrick samples (including the previously published ones): No NA values permitted
 
-#Visualize PC:s
+```{r}
+# PCA for only non-NA elements
+colnames(pxrf_no_na)
+pca_3 <- prcomp(na.omit(pxrf_no_na[3:6]), scale = TRUE, center = TRUE)
+summary(pca_3)
 
-plot(pca_n3, type="lines")
+biplot(pca_3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
+autoplot(pca_3, data=pxrf_no_na, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+autoplot(pca_3, data=pxrf_no_na, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
 
-# 3D PCA plots
+```
 
+PCA with all the Mudbrick samples (including the previously published ones): NA values are permitted
+
+```{r}
+# NA:s converted to zeros
+pxrf_all[is.na(pxrf_all)] <- 0
+
+colnames(pxrf_all)
+pca_4 <- prcomp(pxrf_all[3:25], scale = TRUE, center = TRUE)
+summary(pca_4)
+
+biplot(pca_4, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
+autoplot(pca_4, data=pxrf_all, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+autoplot(pca_4, data=pxrf_all, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
 
 ```
 
 HCA analysis
 
 ```{r}
-
-# HCA (only mudbricks)
-dend <- 
-    n3 %>%                              # data
-    dist %>%                            # calculate a distance matrix
-    hclust(method = "ward.D2") %>%      # hierarchical clustering 
-    as.dendrogram %>%                   # turn the object into a dendrogram
-    set("branches_k_color", k=3) %>% 
-    set("branches_lwd", 1.2) %>%
-    set("labels_col", c("red", "black", "blue"), k=3) %>%    
-    set("labels_cex", 1) %>% 
-    set("leaves_pch", NA) 
-# plot the dend in usual "base" plotting engine:
-plot(dend)
-
-
-
-###### NEW PLOTS WITH CLASS INFO #######
-
-# PCA
-pca_01 <- prcomp(n1[3:8])
-summary(pca_01)
-
-n4 <- n1 %>% select(-Ni)
-pca_02 <- prcomp(n4[3:7])
-summary(pca_02)
-
-# PCA
-
-biplot(pca_01, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA All elements")
-autoplot(pca_01, data=n1, colour='Area', shape = FALSE, label = TRUE,  main = "PCA All elements")
-
-biplot(pca_02, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "No nickel")
-autoplot(pca_02, data=n4, colour='Area', shape = FALSE, label = TRUE,  main = "No nickel")
-
-
-# only new MB samples
-
-n5 <- n1 %>% select(-Ni)
-n5 <- n5[-c(12:53), ]
-pca_03 <- prcomp(n5[3:7])
-summary(pca_03)
-
-
 # HCA
+
+# compute divisive hierarchical clustering
+hc4 <- diana(pxrf_all[3:25])
+
+# Divise coefficient; amount of clustering structure found
+hc4$dc
+
+# Diana dendrogram
+pltree(hc4, cex = 1, hang = -1, main = "Dendrogram of diana")
+
+# HCA dendrogam 1
 dend <- 
-    n5 %>%                              # data
+    pxrf_all[3:25] %>%                    # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    set("branches_k_color", k=3) %>% 
+    set("branches_k_color", k=5) %>% 
     set("branches_lwd", 1.2) %>%
-    set("labels_col", c("red", "black", "blue"), k=3) %>%    
+    set("labels_col", c("red", "black", "blue"), k=5) %>%    
     set("labels_cex", 1) %>% 
     set("leaves_pch", NA) 
 # plot the dend in usual "base" plotting engine:
 plot(dend)
 
-biplot(pca_03, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "Only new MB samples")
 
-autoplot(pca_03, data=n5, colour='Area', shape = FALSE, label = TRUE,  main = "Only new MB samples")
-
-
-# Wards method (HCA) method 2: 
-HCA.ward5 <- hclust(dist(n5, method="euclid"), method="ward.D2")
+# HCA dendrogam 2: 
+HCA.ward5 <- hclust(dist(pxrf_all[3:25], method="euclid"), method="ward.D2")
 plot(HCA.ward5, main="Ward's method")
-rect.hclust(HCA.ward5, k=3)
+rect.hclust(HCA.ward5, k=5)
 
 
 ```

@@ -11,82 +11,21 @@ output:
 ---
 
 
-### pXRF
-
-Introduction
-
 ```{r}
-
+# Libraries
+library(dplyr); 
+library(GGally); 
+library(corrplot); 
+library(tidyr); 
+library(openxlsx); 
+library(cluster); 
+library(ggplot2); 
+library(ggrepel);
+library(ggfortify); 
+library(pca3d);
+library(ggdendro); # dendrograms together with ggplot
+library(dendextend); # dendrograms - change parameters
+library(ggtern) # ternary plots
 
 ```
-
-### Particle size
-
-Introduction
-
-```{r}
-
-## Particle size
-# Read and filter data
-particle <- read.xlsx("data/grain_AYB.xlsx", sep=";")
-
-# Remove automatically created averages in order to include results from multiple runs for the same sample
-particle <- particle %>% 
-  filter(!grepl('Average', Sample)) %>% 
-  filter(!grepl('test', Sample))
-
-# Average by sample name
-particle <- aggregate(particle, by=list(particle$Sample), FUN=mean)
-particle <- particle %>% select(-Sample)
-names(particle)[names(particle) == "Group.1"] <- "Sample"
-
-# Saving the clean data as "AY_grain2"
-## write.xlsx(particle, file="data/granulometry/AY_grain2.xlsx")
-
-# Manually added Type and Context columns to AY_grain2 data: "AY_grain3"
-grain3 <- read.xlsx("data/granulometry/AY_grain3.xlsx", sep=";")
-
-# Samples as rownames
-rownames(grain3) <- grain3$Sample 
-
-# Scaling clay-silt-sand portions to values between 0 and 1
-## Otherwise the differences in low clay percentages are lost
-normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-min(x, na.rm=TRUE))}
-
-grain <- as.data.frame(apply(grain3[3:5], 2, normalize))
-
-# Ternary plots
-
-ggtern(data=grain, aes(x=Clay, y=Sand, z=Silt, color=grain3$Context)) +
-  labs(title="Clay silt sand") +
-  theme_rgbw() +
-  theme_nomask() +
-  geom_point(size=0) +
-  geom_text(aes(label=rownames(grain)), size=3)
-
-ggtern(data=grain, aes(x=Clay, y=Sand, z=Silt, color=grain3$Type)) +
-  labs(title="Clay silt sand") +
-  theme_nomask() +
-  geom_mask() +
-  geom_point(size=2) 
-
-
-```
-
-### LOI
-
-Introduction
-
-```{r}
-
-```
-
-### Colorimetry
-
-Introduction
-
-```{r}
-
-```
-
 

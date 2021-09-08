@@ -11,18 +11,24 @@ output:
 ---
 
 
-### pXRF
-
-Introduction
-
 ```{r}
-
-
+# Libraries
+library(dplyr); 
+library(GGally); 
+library(corrplot); 
+library(tidyr); 
+library(openxlsx); 
+library(cluster); 
+library(ggplot2); 
+library(ggrepel);
+library(ggfortify); 
+library(pca3d);
+library(ggdendro); # dendrograms together with ggplot
+library(dendextend); # dendrograms - change parameters
+library(ggtern) # ternary plots
 ```
 
-### Particle size
-
-Introduction
+Data preparation
 
 ```{r}
 
@@ -72,21 +78,4 @@ ggtern(data=grain, aes(x=Clay, y=Sand, z=Silt, color=grain3$Type)) +
 
 
 ```
-
-### LOI
-
-Introduction
-
-```{r}
-
-```
-
-### Colorimetry
-
-Introduction
-
-```{r}
-
-```
-
 

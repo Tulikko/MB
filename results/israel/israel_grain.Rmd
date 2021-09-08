@@ -11,10 +11,6 @@ output:
 ---
 
 
-### pXRF
-
-Introduction
-
 ```{r}
 # Libraries
 library(dplyr); 
@@ -30,23 +26,11 @@ library(pca3d);
 library(ggdendro); # dendrograms together with ggplot
 library(dendextend); # dendrograms - change parameters
 library(ggtern) # ternary plots
-
-# Read data
-nn <- read.xlsx("data/pxrf_israel.xlsx", sep=";")
-nn <- as.data.frame(nn)
-
-
-
-
 ```
 
-### Particle size
-
-Introduction
+Data preparation
 
 ```{r}
-
-## Particle size
 # Read and filter data
 particle <- read.xlsx("data/grain_israel.xlsx", sep=";")
 
@@ -98,21 +82,4 @@ ggtern(data=grain, aes(x=Clay, y=Sand, z=Silt, color=grain3$Type)) +
 
 
 ```
-
-### LOI
-
-Introduction
-
-```{r}
-
-```
-
-### Colorimetry
-
-Introduction
-
-```{r}
-
-```
-
 
