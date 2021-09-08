@@ -76,7 +76,11 @@ pxrf_no_na <- average_pxrf %>% select_if(any_na)
 glimpse(pxrf_no_na)
 glimpse(pxrf_all)
 
+```
 
+Elemental correlations and K-means cluster analysis
+
+```{r}
 ## CORRELATIONS
 
 # Visualize correlations between elements
@@ -94,6 +98,12 @@ km <-kmeans(pxrf_no_na[3:8], centers = 2)
 cluster_x <- as.factor(km$cluster)
 ggpairs(pxrf_no_na[3:8], mapping = aes(col = cluster_x))
 
+
+```
+
+PCA analysis
+
+```{r}
 
 # PCA
 pca_n2 <- prcomp(pxrf_no_na[3:8])
@@ -128,6 +138,11 @@ plot(pca_n3, type="lines")
 # 3D PCA plots
 
 
+```
+
+HCA analysis
+
+```{r}
 
 # HCA (only mudbricks)
 dend <- 
@@ -196,77 +211,6 @@ HCA.ward5 <- hclust(dist(n5, method="euclid"), method="ward.D2")
 plot(HCA.ward5, main="Ward's method")
 rect.hclust(HCA.ward5, k=3)
 
-
-```
-
-### Particle size
-
-Introduction
-
-```{r}
-## Particle size
-# Read and filter data
-particle <- read.xlsx("data/grain_PP.xlsx", sep=";")
-
-# Remove automatically created averages in order to include results from multiple runs for the same sample
-particle <- particle %>% 
-  filter(!grepl('Average', Sample)) %>% 
-  filter(!grepl('test', Sample))
-
-# Average by sample name
-particle <- aggregate(particle, by=list(particle$Sample), FUN=mean)
-particle <- particle %>% select(-Sample)
-names(particle)[names(particle) == "Group.1"] <- "Sample"
-
-# Saving the clean data as "PP_grain2"
-## write.xlsx(particle, file="data/granulometry/PP_grain2.xlsx")
-
-# Manually added Type and Context columns to PP_grain2 data: "PP_grain3"
-grain3 <- read.xlsx("data/granulometry/PP_grain3.xlsx", sep=";")
-
-# Samples as rownames
-rownames(grain3) <- grain3$Sample 
-
-# Scaling clay-silt-sand portions to values between 0 and 1
-## Otherwise the differences in low clay percentages are lost
-normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-min(x, na.rm=TRUE))}
-
-grain <- as.data.frame(apply(grain3[3:5], 2, normalize))
-
-# Ternary plots
-
-MB_grain <- grain[c(9:19),]
-MB_context <- grain3[c(9:19),]
-
-ggtern(data=MB_grain, aes(x=Clay, y=Sand, z=Silt, color=MB_context$Locus)) +
-  labs(title="Clay silt sand") +
-  theme_rgbw() +
-  theme_nomask() +
-  geom_point(size=0) +
-  geom_text(aes(label=rownames(MB_grain)), size=3)
-
-ggtern(data=grain, aes(x=Clay, y=Sand, z=Silt, color=grain3$Context)) +
-  labs(title="Clay silt sand") +
-  theme_nomask() +
-  geom_mask() +
-  geom_point(size=2) 
-
-
-```
-
-### LOI
-
-Introduction
-
-```{r}
-
-```
-
-### Colorimetry
-
-Introduction
-
-```{r}
 
 ```
 
