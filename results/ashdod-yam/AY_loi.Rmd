@@ -30,16 +30,22 @@ library(pca3d);
 library(ggdendro); # dendrograms together with ggplot
 library(dendextend); # dendrograms - change parameters
 library(ggtern) # ternary plots
+```
 
+Preparing data
 
+```{r}
 loi <- read.xlsx("data/loi_AY.xlsx", sep=";")
 tga <- read.xlsx("data/tga_AY.xlsx", sep=";")
 
-glimpse(loi)
-glimpse(tga)
+summary(loi)
+summary(tga)
 
 # Remove rows containing words 'kekkila' (internal standard)
 tga <- filter(tga, !grepl('kekkila', Name))
+
+# TGA character columns to numeric
+tga[, c(4:7)] <- sapply(tga[, c(4:7)], as.numeric)
 
 # Sample names as rownames
 rownames(loi) <- loi$sample
@@ -53,9 +59,18 @@ loi$dry <- (loi$dry_weight - loi$crucible)
 loi$c550mass <- (loi$after_550_C - loi$crucible)
 loi$c950mass <- (loi$after_950_C - loi$crucible)
 
-# Converting values to percentages
 loi$c550 <- (loi$dry - loi$c550mass)/(loi$dry) * 100
 loi$c950 <- (loi$c550mass - loi$c950mass)/(loi$c550mass) * 100
+
+# Same with TGA
+tga$c550 <- (tga$Dry - tga$Mass_550)/(tga$Dry) * 100
+tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
+
+```
+
+Manual LOI results
+
+```{r}
 
 # Total distribution of LOI in 550 C (1) and 950 C (2)
 boxplot(loi$c550, loi$c950)
@@ -85,8 +100,50 @@ ggplot(loi,
       ylab('Carbonate LOI (%)') +
       theme(axis.title = element_text())
 
+barplot(loi$c550)
+barplot(loi$c950)
+
+# Stacked barplot (x = reorder(sample, LOI))
+loi_long = gather(loi, key = var, value = value, c550, c950)
+
+ggplot(loi_long, aes(x = reorder(sample, value), y = value, fill = var)) +
+  geom_bar(stat = 'identity', position = 'stack') + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
 
 ```
 
+TGA LOI results
+
+```{r}
+# Total distribution of LOI in 550 C (1) and 950 C (2)
+boxplot(tga$c550, tga$c950)
+
+# boxplot.stats gives us the lower whisker or minimum, the interquartile range of the middle (the second and fourth values), the median (third value) and the upper whisker or maximum. 
+boxplot.stats(tga$c950)
+
+# Removing duplicates from the next graph
+#rownames(tga)
+#loi <- subset(loi[1:47, ])
+
+ggplot(tga, 
+      aes(c550, c950, label = rownames(tga))) +
+      geom_point(size=2) +
+      geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
+      xlab('Organic LOI (%)') +
+      ylab('Carbonate LOI (%)') +
+      theme(axis.title = element_text())
+      
+barplot(tga$c550)
+barplot(tga$c950)
+
+# Stacked barplot (x = reorder(sample, LOI))
+tga_long = gather(tga, key = var, value = value, c550, c950)
+
+ggplot(tga_long, aes(x = reorder(Name, value), y = value, fill = var)) +
+  geom_bar(stat = 'identity', position = 'stack') + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+```
 
 
