@@ -23,7 +23,7 @@ library(colordistance)
 
 ```
 
-# Colorimetry
+### Colorimetry
 
 ```{r}
 color1 <- read.table("data/color_AY.txt", header = TRUE, sep = "\t", dec = ",")
