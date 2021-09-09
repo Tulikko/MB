@@ -23,7 +23,7 @@ library(colordistance)
 
 ```
 
-Colorimetry
+# Colorimetry
 
 ```{r}
 color1 <- read.table("data/color_AY.txt", header = TRUE, sep = "\t", dec = ",")
@@ -46,6 +46,22 @@ ggplot(color1,
       labs(title = "Luminance") +
       ylab("L* (D65)") +
       xlab("Sample number") 
+
+ggplot(color,
+      aes(a, L, label = rownames(color))) +
+      geom_point(size=2) +
+      geom_text_repel(size=3) +     
+      labs(title = "Luminance") +
+      ylab("L* (D65)") +
+      xlab("a") 
+
+ggplot(color,
+      aes(b, L, label = rownames(color))) +
+      geom_point(size=2) +
+      geom_text_repel(size=3) +     
+      labs(title = "Luminance") +
+      ylab("L* (D65)") +
+      xlab("b") 
 
 # Simple 3D plot
 plot3d(color$L, color$a, color$b)
