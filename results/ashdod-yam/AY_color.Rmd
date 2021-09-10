@@ -71,16 +71,17 @@ plot3d(color$L, color$a, color$b)
 scatter3D(color$a, color$b, color$L, 
           xlab = "a* (D65)", ylab = "b* (D65)", zlab="L* (D65)",
           phi = 0, bty = "g",  type = "h", 
-          ticktype = "detailed", pch = 19, cex = 1.5)
+          ticktype = "detailed", pch = 19, cex = 1.2)
           text3D(color$a, color$b, color$L,  labels = rownames(color),
-          add = TRUE, colkey = FALSE, cex = .7)
+          add = TRUE, colkey = FALSE, cex = 0.6)
+          
 
 scatter3D(color$L, color$a, color$b, 
           xlab = "L* (D65)", ylab = "a* (D65)", zlab="b* (D65)",
           phi = 0, bty = "g",  type = "h", 
-          ticktype = "detailed", pch = 19, cex = 0.5)
+          ticktype = "detailed", pch = 19, cex = 1.2)
           text3D(color$L, color$a, color$b,  labels = rownames(color),
-          add = TRUE, colkey = FALSE, cex = 0.5)
+          add = TRUE, colkey = FALSE, cex = 0.6)
 
 ```
 
