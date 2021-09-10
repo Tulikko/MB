@@ -11,8 +11,6 @@ output:
   
 ---
 
-### LOI
-
 We did loss on ignition analysis both in the traditional manual method and with a modern TGA for comparison.
 
 ```{r}

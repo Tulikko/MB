@@ -20,11 +20,6 @@ library(rgl);
 library(plot3D);
 library(colordistance)
 
-```
-
-### Colorimetry
-
-```{r}
 color1 <- read.table("data/color_israel.txt", header = TRUE, sep = "\t", dec = ",")
 rownames(color1) <- color1$Data.Name
 color <- subset(color1[, 3:5])
