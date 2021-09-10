@@ -62,17 +62,13 @@ ggplot(color,
       ylab("L* (D65)") +
       xlab("b") 
 
-# Simple 3D plot
-plot3d(color$L, color$a, color$b)
-
 # Colorful 3D plot with drop lines
-
 scatter3D(color$a, color$b, color$L, 
           xlab = "a* (D65)", ylab = "b* (D65)", zlab="L* (D65)",
           phi = 0, bty = "g",  type = "h", 
           ticktype = "detailed", pch = 19, cex = 1.2)
           text3D(color$a, color$b, color$L,  labels = rownames(color),
-          add = TRUE, colkey = FALSE, cex = 0.6)
+          add = TRUE, colkey = FALSE, cex = 0.7)
           
 
 scatter3D(color$L, color$a, color$b, 
@@ -80,6 +76,6 @@ scatter3D(color$L, color$a, color$b,
           phi = 0, bty = "g",  type = "h", 
           ticktype = "detailed", pch = 19, cex = 1.2)
           text3D(color$L, color$a, color$b,  labels = rownames(color),
-          add = TRUE, colkey = FALSE, cex = 0.6)
+          add = TRUE, colkey = FALSE, cex = 0.7)
 ```
 
