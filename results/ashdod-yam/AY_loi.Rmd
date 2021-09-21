@@ -15,24 +15,8 @@ We did loss on ignition analysis both in the traditional manual method and with 
 
 ```{r}
 # Libraries
-library(dplyr); 
-library(GGally); 
-library(corrplot); 
-library(tidyr); 
 library(openxlsx); 
-library(cluster); 
-library(ggplot2); 
-library(ggrepel);
-library(ggfortify); 
-library(pca3d);
-library(ggdendro); # dendrograms together with ggplot
-library(dendextend); # dendrograms - change parameters
-library(ggtern) # ternary plots
-```
 
-Preparing data
-
-```{r}
 loi <- read.xlsx("data/loi_AY.xlsx", sep=";")
 tga <- read.xlsx("data/tga_AY.xlsx", sep=";")
 
@@ -125,7 +109,7 @@ boxplot.stats(tga$c950)
 #loi <- subset(loi[1:47, ])
 
 ggplot(tga, 
-      aes(c550, c950, label = rownames(tga))) +
+      aes(c550, c950, label = rownames(tga), colour = factor(context))) +
       geom_point(size=2) +
       geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
       xlab('Organic LOI (%)') +
