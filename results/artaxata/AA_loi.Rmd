@@ -1,5 +1,4 @@
 ---
-title: "Artaxata mudbrick analysis"
 author: "Uine Kailamäki"
 output:
   html_document:
@@ -12,26 +11,16 @@ output:
 
 We did loss on ignition analysis both in the traditional manual method and with a modern TGA for comparison.
 
+#### Data preparation
+
 ```{r}
 # Libraries
-library(dplyr); 
-library(GGally); 
-library(corrplot); 
-library(tidyr); 
 library(openxlsx); 
-library(cluster); 
+library(dplyr); 
 library(ggplot2); 
 library(ggrepel);
-library(ggfortify); 
-library(pca3d);
-library(ggdendro); # dendrograms together with ggplot
-library(dendextend); # dendrograms - change parameters
-library(ggtern) # ternary plots
-```
+library(tidyr); 
 
-Preparing data
-
-```{r}
 loi <- read.xlsx("data/loi_AA.xlsx", sep=";")
 tga <- read.xlsx("data/tga_AA.xlsx", sep=";")
 
@@ -65,12 +54,12 @@ tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
 
 ```
 
-Manual LOI results
+#### Manual LOI results
 
 ```{r}
-
-# Total distribution of LOI in 550 C (1) and 950 C (2)
-boxplot(loi$c550, loi$c950)
+# Distribution of LOI in 550 C (1) and 950 C (2)
+boxplot(c550~context, data=loi)
+boxplot(c950~context, data=loi)
 
 # boxplot.stats gives us the lower whisker or minimum, the interquartile range of the middle (the second and fourth values), the median (third value) and the upper whisker or maximum. 
 boxplot.stats(loi$c950)
@@ -96,11 +85,12 @@ ggplot(loi_long, aes(x = reorder(sample, value), y = value, fill = var)) +
 
 ```
 
-TGA LOI results
+#### TGA LOI results
 
 ```{r}
-# Total distribution of LOI in 550 C (1) and 950 C (2)
-boxplot(tga$c550, tga$c950)
+# Distribution of LOI in 550 C (1) and 950 C (2)
+boxplot(c550~context, data=tga)
+boxplot(c950~context, data=tga)
 
 # boxplot.stats gives us the lower whisker or minimum, the interquartile range of the middle (the second and fourth values), the median (third value) and the upper whisker or maximum. 
 boxplot.stats(tga$c950)
