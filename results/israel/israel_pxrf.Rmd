@@ -1,5 +1,4 @@
 ---
-title: "Israeli mudbrick analysis"
 author: "Uine Kailamäki"
 output:
   html_document:
@@ -10,33 +9,55 @@ output:
   
 ---
 
+From literature we can identify three rough classes of elements that could be used to analyze mudbricks from pXRF results: 
 
-### pXRF
+Good: Rb, Sr, Y, Zr, Nb, Th, Pb, Cu, Zn, Fe \
+Neutral: V, Cr, Co, Ni, Ca, Ti \
+Bad: Na, P, Ba (+ Ca, Al)
 
-Introduction
+The "bad" elements were excluded from the pXRF results from the get-go. After scaling and averaging the remaining values we ended up with two analysis datasets: **"pxrf_all"** that contains all the elements that have non-zero results, and **"pxrf_no_na"**, in which all the elements that have even one NA result are omitted.  
+
+#### Data preparation
 
 ```{r}
-# Libraries
-library(dplyr); 
-library(GGally); 
-library(corrplot); 
-library(tidyr); 
-library(openxlsx); 
-library(cluster); 
-library(ggplot2); 
-library(ggrepel);
-library(ggfortify); 
-library(pca3d);
-library(ggdendro); # dendrograms together with ggplot
-library(dendextend); # dendrograms - change parameters
-library(ggtern) # ternary plots
-
-# Read data
-nn <- read.xlsx("data/pxrf_israel.xlsx", sep=";")
-nn <- as.data.frame(nn)
-
 
 ```
 
+**pxrf_no_na**: \
 
+```{r}
+summary(pxrf_no_na)
+```
+
+**pxrf_all**: \
+
+```{r}
+summary(pxrf_all)
+```
+
+#### pXRF: Elemental correlations and K means cluster analysis
+
+```{r}
+
+```
+
+#### pXRF: PCA
+
+**PCA with only the no-NA:s elements**: \
+
+```{r}
+
+```
+
+**PCA with all the feasible elements**: \
+
+```{r}
+
+```
+
+#### pXRF: HCA
+
+```{r}
+
+```
 

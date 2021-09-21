@@ -1,5 +1,4 @@
 ---
-title: "Palaepaphos mudbrick analysis"
 author: "Uine Kailamäki"
 output:
   html_document:
@@ -10,8 +9,15 @@ output:
     
 ---
 
+From literature we can identify three rough classes of elements that could be used to analyze mudbricks from pXRF results: 
 
-Introduction
+Good: Rb, Sr, Y, Zr, Nb, Th, Pb, Cu, Zn, Fe \
+Neutral: V, Cr, Co, Ni, Ca, Ti \
+Bad: Na, P, Ba (+ Ca, Al)
+
+The "bad" elements were excluded from the pXRF results from the get-go. After scaling and averaging the remaining values we ended up with two analysis datasets: **"pxrf_all"** that contains all the elements that have non-zero results, and **"pxrf_no_na"**, in which all the elements that have even one NA result are omitted.  
+
+#### Data preparation
 
 ```{r}
 # Libraries
@@ -29,11 +35,6 @@ library(ggdendro); # dendrograms together with ggplot
 library(dendextend); # dendrograms - change parameters
 library(tidyverse) # rectangles around HClust
 
-```
-
-Data preparation
-
-```{r}
 # Read data
 pxrf <- read.xlsx("data/pxrf_PP.xlsx", sep=";")
 
@@ -74,10 +75,6 @@ pxrf_all <- average_pxrf %>% select_if(all_na)
 any_na <- function(x) all(!is.na(x))
 pxrf_no_na <- average_pxrf %>% select_if(any_na)
 
-# Datasets with all the samples, including soil and old mudbrick samples
-summary(pxrf_no_na)
-summary(pxrf_all)
-
 # Datasets with only our new mudbrick samples (no soil or previously published ones)
 MB_nona <- pxrf_no_na[c(1:11), ]
 MB_all <- pxrf_all[c(1:11), ]
@@ -90,21 +87,39 @@ MB_all <- MB_all %>%
         select(-Ag) %>% 
         select(-Pb) 
 
-summary(MB_nona)
-summary(MB_all)
-
 ```
 
-Elemental correlations in new mudbrick samples
+**pxrf_no_na**: \
+
+```{r}
+summary(pxrf_no_na)
+```
+
+**pxrf_all**: \
+
+```{r}
+summary(pxrf_all)
+```
+
+**MB_nona**: \
+
+```{r}
+summary(MB_nona)
+```
+
+**MB_all**: \
+
+```{r}
+summary(MB_all)
+```
+
+#### pXRF: Elemental correlations and K means cluster analysis
+
+Only the "new" mudbrick samples
 
 ```{r}
 # Visualize correlations between elements
 cor(MB_all[3:20]) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
-```
-
-K-means cluster analysis
-
-```{r}
 
 # Optimal number of clusters in K-means analysis: 2
 k_max <- 8
@@ -118,9 +133,9 @@ ggpairs(MB_nona[3:8], mapping = aes(col = cluster_x))
 
 ```
 
-### pXRF: PCA
+#### pXRF: PCA
 
-PCA with only the no-NA:s elements
+**PCA with only the no-NA:s elements**: \
 
 ```{r}
 
@@ -135,7 +150,7 @@ PCA(MB_nona[3:8])
 
 ```
 
-PCA with all the feasible elements
+**PCA with all the feasible elements**: \
 
 ```{r}
 # NA:s converted to zeros
@@ -151,7 +166,9 @@ PCA(MB_all[3:20])
 
 ```
 
-### PCA with all the Mudbrick and soil samples (including the previously published ones): No NA values permitted
+#### PCA with all the Mudbrick and soil samples 
+
+Including the previously published ones, No NA values permitted
 
 ```{r}
 # PCA for only non-NA elements
@@ -165,10 +182,10 @@ autoplot(pca_3, data=pxrf_no_na, colour='Type', shape = FALSE, label = TRUE,  ma
 
 ```
 
-### PCA with all the Mudbrick samples 
+#### PCA with all the Mudbrick samples 
 
-(including the previously published ones): NA values are permitted
-This is not feasible as the difference in what values are available is too different between old and new samples.
+Including the previously published ones, NA values are permitted
+This is not viable, as the difference in what values are available is too different between old and new samples.
 
 ```{r}
 # NA:s converted to zeros
@@ -184,9 +201,9 @@ autoplot(pca_4, data=pxrf_all, colour='Type', shape = FALSE, label = TRUE,  main
 
 ```
 
-### HCA analysis
+#### pXRF: HCA
 
-HCA including only new mudbrick samples: 
+**HCA including only new mudbrick samples**: \
 
 ```{r}
 # HCA dendrogam 1
@@ -216,9 +233,7 @@ hc4$dc
 
 ```
 
-### HCA analysis
-
-HCA including all mudbrick samples, only no NA:s elements: 
+**HCA including all mudbrick samples, only no NA:s elements **: \
 
 ```{r}
 # HCA dendrogam 1

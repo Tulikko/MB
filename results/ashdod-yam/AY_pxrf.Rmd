@@ -1,5 +1,4 @@
 ---
-title: "Ashdod-Yam mudbrick analysis"
 author: "Uine Kailamäki"
 output:
   html_document:
@@ -7,12 +6,8 @@ output:
     fig_caption: true
     fig_width: 12
     fig_height: 8 
-    code_folding: hide
-  
+
 ---
-
-
-### pXRF
 
 From literature we can identify three rough classes of elements that could be used to analyze mudbricks from pXRF results: 
 
@@ -22,16 +17,16 @@ Bad: Na, P, Ba (+ Ca, Al)
 
 The "bad" elements were excluded from the pXRF results from the get-go. After scaling and averaging the remaining values we ended up with two analysis datasets: **"pxrf_all"** that contains all the elements that have non-zero results, and **"pxrf_no_na"**, in which all the elements that have even one NA result are omitted.  
 
-We end up with 20 elements in the "pxrf_all" dataset, and 12 elements in the "pxrf_no_na" dataset.
-
+#### Data preparation
 
 ```{r}
 # Libraries
-library(dplyr); 
+library(openxlsx); 
+library(dplyr);
+
 library(GGally); 
 library(corrplot); 
 library(tidyr); 
-library(openxlsx); 
 library(cluster); 
 library(ggplot2); 
 library(ggrepel);
@@ -39,7 +34,6 @@ library(ggfortify);
 library(pca3d);
 library(ggdendro); # dendrograms together with ggplot
 library(dendextend); # dendrograms - change parameters
-library(ggtern) # ternary plots
 
 # Read the raw data
 pxrf <- read.xlsx("data/pxrf_AY.xlsx", sep=";")
@@ -76,11 +70,11 @@ names(average_pxrf)[names(average_pxrf) == "Group.3"] <- "Type"
 average_pxrf$Type <- factor(average_pxrf$Type)
 average_pxrf$Area <- factor(average_pxrf$Area)
 
-# Removing columns that only have NA values
+# Removing all columns that only have NA values
 all_na <- function(x) any(!is.na(x))
 pxrf_all <- average_pxrf %>% select_if(all_na)
 
-# Removing columns if they contain any NA values at all
+# Removing all columns that contain any NA values at all
 any_na <- function(x) all(!is.na(x))
 pxrf_no_na <- average_pxrf %>% select_if(any_na)
 ```
@@ -88,18 +82,16 @@ pxrf_no_na <- average_pxrf %>% select_if(any_na)
 **pxrf_no_na**: 
 
 ```{r}
-glimpse(pxrf_no_na)
+summary(pxrf_no_na)
 ```
 
 **pxrf_all**: 
 
 ```{r}
-glimpse(pxrf_all)
+summary(pxrf_all)
 ```
 
-### pXRF: correlations
-
-Introduction
+#### pXRF: correlations
 
 ```{r}
 # Drop the more dubious elements
@@ -120,9 +112,9 @@ cluster_x <- as.factor(km$cluster)
 ggpairs(pxrf_1, mapping = aes(col = cluster_x))
 ```
 
-### pXRF: PCA
+#### pXRF: PCA
 
-PCA with only the no-NA:s elements
+**PCA with only the no-NA:s elements**: \
 
 ```{r}
 # Elements with no NA values at all
@@ -140,7 +132,7 @@ autoplot(pca_1, data=pxrf_1, colour='Area', shape = FALSE, label = TRUE,  main =
 autoplot(pca_1, data=pxrf_1, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam grouped by sample type")
 ```
  
-PCA with all the feasible elements
+**PCA with all the feasible elements**: \
 
 ```{r}
 # Elements that have at least one viable value
@@ -159,9 +151,7 @@ autoplot(pca_1, data=pxrf_1, colour='Type', shape = FALSE, label = TRUE,  main =
 
 ```
 
-### pXRF: HCA
-
-Introduction
+#### pXRF: HCA
 
 ```{r}
 # HCA

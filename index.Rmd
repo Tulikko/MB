@@ -1,7 +1,7 @@
 ---
 title: "Building Sustainability"
 author: "Uine Kailamäki"
-date: "06/2021"
+date: "2021"
 output:
   html_document:
     theme: cosmo
@@ -23,7 +23,7 @@ The results are arranged to separate tabs by site/area, so that it's easy to loo
 
 The results for each site consist of four parts: pXRF, particle size distribution, loss on ignition, and colorimetry.
 
-# Sites {.tabset}
+# {.tabset}
 
 ## Ashdod-Yam 
 ```{r child = "results/ashdod-yam/index.Rmd"}

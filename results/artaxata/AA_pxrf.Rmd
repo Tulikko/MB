@@ -1,5 +1,4 @@
 ---
-title: "Artaxata mudbrick analysis"
 author: "Uine Kailamäki"
 output:
   html_document:
@@ -10,14 +9,24 @@ output:
     
 ---
 
+From literature we can identify three rough classes of elements that could be used to analyze mudbricks from pXRF results: 
+
+Good: Rb, Sr, Y, Zr, Nb, Th, Pb, Cu, Zn, Fe \
+Neutral: V, Cr, Co, Ni, Ca, Ti \
+Bad: Na, P, Ba (+ Ca, Al)
+
+The "bad" elements were excluded from the pXRF results from the get-go. After scaling and averaging the remaining values we ended up with two analysis datasets: **"pxrf_all"** that contains all the elements that have non-zero results, and **"pxrf_no_na"**, in which all the elements that have even one NA result are omitted.  
+
+#### Data preparation
 
 ```{r}
 # Libraries
-library(dplyr); 
+library(openxlsx); 
+library(dplyr);
+
 library(GGally); 
 library(corrplot); 
 library(tidyr); 
-library(openxlsx); 
 library(cluster); 
 library(ggplot2); 
 library(ggrepel);
@@ -25,7 +34,6 @@ library(ggfortify);
 library(pca3d);
 library(ggdendro); # dendrograms together with ggplot
 library(dendextend); # dendrograms - change parameters
-library(ggtern) # ternary plots
 
 # Read the raw data
 pxrf <- read.xlsx("data/pxrf_AA.xlsx", sep=";")
@@ -75,18 +83,16 @@ pxrf_no_na <- average_pxrf %>% select_if(any_na)
 **pxrf_no_na**: \
 
 ```{r}
-glimpse(pxrf_no_na)
+summary(pxrf_no_na)
 ```
 
 **pxrf_all**: \
 
 ```{r}
-glimpse(pxrf_all)
+summary(pxrf_all)
 ```
 
-### pXRF: correlations
-
-Introduction
+#### pXRF: Elemental correlations and K means cluster analysis
 
 ```{r}
 # Drop the more dubious elements
@@ -107,9 +113,9 @@ cluster_x <- as.factor(km$cluster)
 ggpairs(pxrf_1, mapping = aes(col = cluster_x))
 ```
 
-### pXRF: PCA
+#### pXRF: PCA
 
-PCA with only the no-NA:s elements
+**PCA with only the no-NA:s elements**: \
 
 ```{r}
 # PCA
@@ -123,7 +129,7 @@ autoplot(pca_1, data=pxrf_1, colour='Area', shape = FALSE, label = TRUE,  main =
 
 ```
  
-PCA with all the feasible elements
+**PCA with all the feasible elements**: \
 
 ```{r}
 # PCA with all elements, NA:s converted to zeros
@@ -140,7 +146,7 @@ autoplot(pca_2, data=pxrf_all, colour='Area', shape = FALSE, label = TRUE,  main
 
 ```
 
-HCA
+#### pXRF: HCA
 
 ```{r}
 # HCA
