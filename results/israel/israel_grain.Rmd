@@ -18,7 +18,7 @@ library(openxlsx);
 library(ggtern)
 
 # Read and filter data
-grain <- read.xlsx("data/grain_AY.xlsx", sep=";")
+grain <- read.xlsx("data/grain_israel.xlsx", sep=";")
 
 # Remove automatically created averages in order to include results from multiple runs for the same sample
 grain <- grain %>% 
@@ -64,12 +64,6 @@ ggtern(data=grain_01, aes(x=Clay, y=Sand, z=Silt, color=grain$Context)) +
   theme_nomask() +
   geom_mask() +
   geom_point(size=2)
-
-ggtern(data=grain_01, aes(x=Clay, y=Sand, z=Silt, color=grain$Type)) +
-  labs(title="Clay silt sand") +
-  theme_nomask() +
-  geom_mask() +
-  geom_point(size=2) 
 
 ```
 

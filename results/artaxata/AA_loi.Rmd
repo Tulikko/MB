@@ -61,19 +61,14 @@ tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
 boxplot(c550~context, data=loi)
 boxplot(c950~context, data=loi)
 
-# boxplot.stats gives us the lower whisker or minimum, the interquartile range of the middle (the second and fourth values), the median (third value) and the upper whisker or maximum. 
-boxplot.stats(loi$c950)
-
-# The two high carbonate outliers are both AY-53 (two different measurements to make sure the first batch wasn't misleading)
-
-# Removing duplicates from the next graph
-rownames(loi)
-loi <- subset(loi[1:47, ])
-
-### ggplots later with context and type
-
-barplot(loi$c550)
-barplot(loi$c950)
+# Color by context
+ggplot(loi, 
+      aes(c550, c950, label = rownames(loi), colour = factor(context))) +
+      geom_point(size=2, aes(shape = factor(type))) +
+      geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
+      xlab('Organic LOI (%)') +
+      ylab('Carbonate LOI (%)') +
+      theme(axis.title = element_text())
 
 # Stacked barplot (x = reorder(sample, LOI))
 loi_long = gather(loi, key = var, value = value, c550, c950)
@@ -92,23 +87,14 @@ ggplot(loi_long, aes(x = reorder(sample, value), y = value, fill = var)) +
 boxplot(c550~context, data=tga)
 boxplot(c950~context, data=tga)
 
-# boxplot.stats gives us the lower whisker or minimum, the interquartile range of the middle (the second and fourth values), the median (third value) and the upper whisker or maximum. 
-boxplot.stats(tga$c950)
-
-# Removing duplicates from the next graph
-#rownames(tga)
-#loi <- subset(loi[1:47, ])
-
+# Color by context
 ggplot(tga, 
-      aes(c550, c950, label = rownames(tga))) +
+      aes(c550, c950, label = rownames(tga), colour = factor(context))) +
       geom_point(size=2) +
       geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
       xlab('Organic LOI (%)') +
       ylab('Carbonate LOI (%)') +
       theme(axis.title = element_text())
-      
-barplot(tga$c550)
-barplot(tga$c950)
 
 # Stacked barplot (x = reorder(sample, LOI))
 tga_long = gather(tga, key = var, value = value, c550, c950)

@@ -70,6 +70,7 @@ boxplot.stats(loi$c950)
 rownames(loi)
 loi <- subset(loi[1:47, ])
 
+# Color by context
 ggplot(loi, 
       aes(c550, c950, label = rownames(loi), colour = factor(context))) +
       geom_point(size=2, aes(shape = factor(type))) +
@@ -77,7 +78,8 @@ ggplot(loi,
       xlab('Organic LOI (%)') +
       ylab('Carbonate LOI (%)') +
       theme(axis.title = element_text())
-      
+     
+# Color by type
 ggplot(loi, 
       aes(c550, c950)) +
       geom_point(size=2, aes(shape = factor(type), colour = factor(context))) +
@@ -85,9 +87,6 @@ ggplot(loi,
       xlab('Organic LOI (%)') +
       ylab('Carbonate LOI (%)') +
       theme(axis.title = element_text())
-
-barplot(loi$c550)
-barplot(loi$c950)
 
 # Stacked barplot (x = reorder(sample, LOI))
 loi_long = gather(loi, key = var, value = value, c550, c950)
