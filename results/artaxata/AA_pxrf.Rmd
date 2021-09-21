@@ -92,15 +92,12 @@ summary(pxrf_no_na)
 summary(pxrf_all)
 ```
 
-#### pXRF: Elemental correlations and K means cluster analysis
+#### pXRF: K means cluster analysis
 
 ```{r}
 # Drop the more dubious elements
 pxrf_1 <- pxrf_no_na %>% select(-Al2O3)
 pxrf_1 <- pxrf_1 %>% select(-CaO)
-
-# Visualize correlations between elements
-cor(pxrf_1[3:15]) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
 
 # Optimal number of clusters in K-means analysis: 2
 k_max <- 8
@@ -164,7 +161,6 @@ dend <-
     set("leaves_pch", NA) 
 # plot the dend in usual "base" plotting engine:
 plot(dend)
-
 
 # HCA dendrogam 2: 
 HCA.ward4 <- hclust(dist(pxrf_1[3:12], method="euclid"), method="ward.D2")

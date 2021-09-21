@@ -113,14 +113,11 @@ summary(MB_nona)
 summary(MB_all)
 ```
 
-#### pXRF: Elemental correlations and K means cluster analysis
+#### pXRF: K means cluster analysis
 
 Only the "new" mudbrick samples
 
 ```{r}
-# Visualize correlations between elements
-cor(MB_all[3:20]) %>% corrplot (type = "lower", tl.cex = 1, tl.pos="d", cl.pos="r")
-
 # Optimal number of clusters in K-means analysis: 2
 k_max <- 8
 twcss <- sapply(1:k_max, function(k){kmeans(MB_nona[3:8], k)$tot.withinss})
@@ -138,7 +135,6 @@ ggpairs(MB_nona[3:8], mapping = aes(col = cluster_x))
 **PCA with only the no-NA:s elements**: \
 
 ```{r}
-
 # PCA for only non-NA elements
 colnames(MB_nona)
 pca_1 <- prcomp(MB_nona[3:8], scale = TRUE, center = TRUE)
