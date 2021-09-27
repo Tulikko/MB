@@ -21,96 +21,120 @@ The "bad" elements were excluded from the pXRF results from the get-go. After sc
 
 ```{r}
 # Libraries
-library(dplyr); 
-library(GGally); 
-library(corrplot); 
-library(tidyr); 
 library(openxlsx); 
-library(cluster); 
-library(ggplot2); 
-library(ggfortify); 
-library(pca3d);
-library(FactoMineR); # fast PCA graphs
-library(ggdendro); # dendrograms together with ggplot
-library(dendextend); # dendrograms - change parameters
-library(tidyverse) # rectangles around HClust
+library(dplyr);
+library(GGally); # GGpairs
+library(ggfortify); # PCA autoplots
+library(FactoMineR); # Fast PCA graphs
+library(dendextend); # Dendrograms
 
-# Read data
+# Read the raw data
 pxrf <- read.xlsx("data/pxrf_PP.xlsx", sep=";")
 
 # Remove any rows containing words 'ERROR' or 'TEST'
 pxrf <- filter(pxrf, !grepl('TEST', Sample))
 pxrf <- filter(pxrf, !grepl('ERROR', Sample))
 
-# Turn any "LOD":s and missing values to "NA":s to allow scaling
-values <- c("MgO", "Al2O3", "SiO2", 
-            "S", "Cl", "K2O", "CaO", "Ti", "V", "Cr", 
-            "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "As", 
-            "Se", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", 
-            "Rh", "Pd", "Ag", "Cd", "Sn", "Sb", 
-            "La", "Ce", "Hf", "Ta", "W", "Pt", "Au", 
-            "Hg", "Tl", "Pb", "Bi", "Th", "U")
+# Remove unused columns
+pxrf <- pxrf %>% 
+        select(-Site) %>% 
+        select(-'Other;name') %>% 
+        select(-'File;#') %>% 
+        select(-DateTime) %>% 
+        select(-Application) %>% 
+        select(-Method) %>% 
+        select(-ElapsedTime) %>% 
+        select(-'Cal;Check')
+  
+# Coercing "< LOD" -results to NA:s  
+pxrf[4:93] <- pxrf[4:93] %>% mutate_if(is.character,as.numeric)
 
-pxrf_NA <- select(pxrf, one_of(values))
-pxrf_NA <- pxrf_NA %>% mutate_if(is.character,as.numeric)
+# Averaging results by "Sample", "Area" and "Type" columns
+pxrf_averaged <- aggregate(pxrf, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
 
-# Average data by "Sample", "Area" and "Type" columns from the original dataset
-average_pxrf <- aggregate(pxrf_NA, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
+# Removing old (now empty) columns
+pxrf_averaged <- pxrf_averaged %>% select(-Sample)
+pxrf_averaged <- pxrf_averaged %>% select(-Area)
+pxrf_averaged <- pxrf_averaged %>% select(-Type)
 
-# Assign sample names as row names, and rename the other newly created columns back to "Type" and "Area" for clarity
-rownames(average_pxrf) <- average_pxrf$Group.1
-average_pxrf <- average_pxrf %>% select(-Group.1)
-names(average_pxrf)[names(average_pxrf) == "Group.2"] <- "Area"
-names(average_pxrf)[names(average_pxrf) == "Group.3"] <- "Type"
+# Assigning sample names as new row names 
+rownames(pxrf_averaged) <- pxrf_averaged$Group.1
+pxrf_averaged <- pxrf_averaged %>% select(-Group.1)
 
-# Change "Type" and "Area" to factors
-average_pxrf$Type <- factor(average_pxrf$Type)
-average_pxrf$Area <- factor(average_pxrf$Area)
+# Renaming the other two newly created groups back to "Type" and "Area"
+names(pxrf_averaged)[names(pxrf_averaged) == "Group.2"] <- "Area"
+names(pxrf_averaged)[names(pxrf_averaged) == "Group.3"] <- "Type"
 
-# Removing columns that only have NA values
+# Removing error columns from the scaled analysis data set
+pxrf_scaled <- pxrf_averaged %>% select(-ends_with("Err"))
+
+# Scaling the data with standard z-score method
+pxrf_scaled[3:47] <- scale(pxrf_scaled[3:47])
+
+# Removing columns that only contain NA values
 all_na <- function(x) any(!is.na(x))
-pxrf_all <- average_pxrf %>% select_if(all_na)
+pxrf_all <- pxrf_scaled %>% select_if(all_na)
 
-# Removing columns if they contain any NA values at all
-any_na <- function(x) all(!is.na(x))
-pxrf_no_na <- average_pxrf %>% select_if(any_na)
 
-# Datasets with only our new mudbrick samples (no soil or previously published ones)
-MB_nona <- pxrf_no_na[c(1:11), ]
-MB_all <- pxrf_all[c(1:11), ]
 
-# Removing As, Nb, Rh, Ag and Pb as they have almost no viable measurement values
-MB_all <- MB_all %>% 
+```
+
+**pxrf_averaged**: All averaged data including averaged errors (Uine's note: for later use)
+
+```{r}
+colnames(pxrf_averaged)
+```
+
+**pxrf_all**: All elements (the numbers below are the amount of NA values)
+
+```{r}
+colSums(is.na(pxrf_all))
+```
+
+**pxrf_final**: Final analysis data set with only the selected elements, all samples (soil and published included)
+
+```{r}
+# Dropping the dubious elements and elements with too many NA values
+pxrf_final <- pxrf_all %>% 
+        select(-Al2O3) %>% 
+        select(-CaO) %>% 
+        select(-SiO2) %>%
+        select(-Cl) %>%  
+        select(-K2O) %>% 
+        select(-Ni) %>% 
+        select(-P2O5) %>%  
+        select(-S) %>% 
+        select(-V) %>% 
         select(-As) %>% 
-        select(-Nb) %>% 
-        select(-Rh) %>%   
-        select(-Ag) %>% 
-        select(-Pb) 
+        select(-Rh) %>% 
+        select(-Ag)
 
+# Transforming remaining NA values to zeros for analysis
+pxrf_final[is.na(pxrf_final)] <- 0
+
+# Final analysis data set        
+colnames(pxrf_final)
 ```
 
-**pxrf_no_na**: \
+**pxrf_MB**: Final analysis data set for NEW MUDBRICK samples only (= no soil or published samples)
 
 ```{r}
-summary(pxrf_no_na)
+pxrf_MB <- pxrf_final[c(1:11), ]
+rownames(pxrf_MB)
 ```
 
-**pxrf_all**: \
+**pxrf_soil**: Final analysis data set for NEW samples only (= no published samples, yes soil)
 
 ```{r}
-summary(pxrf_all)
+pxrf_soil <- pxrf_final[-c(12:45), ]
+rownames(pxrf_soil)
 ```
 
-**MB_nona**: \
+**pxrf_MB2**: Final analysis data set for ALL MUDBRICK samples  (= no soil)
 
 ```{r}
-summary(MB_nona)
-```
-
-**MB_all**: \
-
-```{r}
-summary(MB_all)
+pxrf_MB2 <- pxrf_final[c(1:45), ]
+rownames(pxrf_MB2)
 ```
 
 #### pXRF: K means cluster analysis
@@ -118,144 +142,133 @@ summary(MB_all)
 Only the "new" mudbrick samples
 
 ```{r}
-# Optimal number of clusters in K-means analysis: 2
-k_max <- 8
-twcss <- sapply(1:k_max, function(k){kmeans(MB_nona[3:8], k)$tot.withinss})
-qplot(x = 1:k_max, y = twcss, geom = 'line')
-
 # K-means clustering in ggpairs: 2 clusters
-km <-kmeans(MB_nona[3:8], centers = 2)
+km <-kmeans(pxrf_MB[3:12], centers = 3)
 cluster_x <- as.factor(km$cluster)
-ggpairs(MB_nona[3:8], mapping = aes(col = cluster_x))
+ggpairs(pxrf_MB[3:12], mapping = aes(col = cluster_x))
+
+# PC autoplot with K-means clusters
+set.seed(1)
+autoplot(kmeans(pxrf_MB[3:12], 3), data = pxrf_MB, label = TRUE, label.size = 3)
 
 ```
 
 #### pXRF: PCA
 
-**PCA with only the no-NA:s elements**: \
+**PCA with only new mudbrick samples**: 
 
 ```{r}
-# PCA for only non-NA elements
-colnames(MB_nona)
-pca_1 <- prcomp(MB_nona[3:8], scale = TRUE, center = TRUE)
+# Elements
+colnames(pxrf_MB[3:12])
+
+# PCA analysis
+pca_1 <- prcomp(pxrf_MB[3:12])
 summary(pca_1)
 
-biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
-autoplot(pca_1, data=MB_nona, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos 1: no NA:s at all")
-PCA(MB_nona[3:8])
+# PCA plots
+biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
+autoplot(pca_1, data=pxrf_MB, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+PCA(pxrf_MB[3:12])
 
 ```
 
-**PCA with all the feasible elements**: \
+**PCA with soil samples**: \
 
 ```{r}
-# NA:s converted to zeros
-MB_all[is.na(MB_all)] <- 0
+# Elements
+colnames(pxrf_soil[3:12])
 
-colnames(MB_all)
-pca_2 <- prcomp((MB_all[3:20]), scale = TRUE, center = TRUE)
+# PCA analysis
+pca_2 <- prcomp(pxrf_soil[3:12])
 summary(pca_2)
 
-biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
-autoplot(pca_2, data=MB_all, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos 2: NA:s permitted")
-PCA(MB_all[3:20])
+# PCA plots
+biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
+autoplot(pca_2, data=pxrf_soil, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+autoplot(pca_2, data=pxrf_soil, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
+PCA(pxrf_soil[3:12])
 
 ```
 
-#### PCA with all the Mudbrick and soil samples 
+#### PCA with all the mudbrick samples 
 
-Including the previously published ones, No NA values permitted
+Including the previously published ones, no soil
 
 ```{r}
-# PCA for only non-NA elements
-colnames(pxrf_no_na)
-pca_3 <- prcomp(na.omit(pxrf_no_na[3:6]), scale = TRUE, center = TRUE)
+# Elements
+colnames(pxrf_MB2[3:12])
+
+# PCA analysis
+pca_3 <- prcomp(pxrf_MB2[3:12])
 summary(pca_3)
 
-biplot(pca_3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
-autoplot(pca_3, data=pxrf_no_na, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
-autoplot(pca_3, data=pxrf_no_na, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
-
-```
-
-#### PCA with all the Mudbrick samples 
-
-Including the previously published ones, NA values are permitted
-This is not viable, as the difference in what values are available is too different between old and new samples.
-
-```{r}
-# NA:s converted to zeros
-pxrf_all[is.na(pxrf_all)] <- 0
-
-colnames(pxrf_all)
-pca_4 <- prcomp(pxrf_all[3:25], scale = TRUE, center = TRUE)
-summary(pca_4)
-
-biplot(pca_4, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"))
-autoplot(pca_4, data=pxrf_all, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
-autoplot(pca_4, data=pxrf_all, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
+# PCA plots
+biplot(pca_3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
+autoplot(pca_3, data=pxrf_MB2, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+PCA(pxrf_MB2[3:12])
 
 ```
 
 #### pXRF: HCA
 
-**HCA including only new mudbrick samples**: \
+**HCA including only new samples**: \
 
 ```{r}
-# HCA dendrogam 1
+# HCA dendrogram, samples color coded by area:
 dend <- 
-    MB_all[3:20] %>%           # data
+    pxrf_MB %>%                         # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    set("branches_k_color", k=5) %>% 
-    set("branches_lwd", 1.2) %>%
-    set("labels_col", c("red", "black", "blue"), k=5) %>%    
-    set("labels_cex", 1) %>% 
-    set("leaves_pch", NA) 
-# plot the dend in usual "base" plotting engine:
-plot(dend)
+    color_branches(k=4)
 
-# HCA dendrogam 2
-HCA.ward5 <- hclust(dist(MB_all[3:20], method="euclid"), method="ward.D2")
-plot(HCA.ward5, main="Ward's method")
-rect.hclust(HCA.ward5, k=5)
+area <- as.factor(pxrf_MB[, 1])
+n_area <- length(unique(area))
+cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
+col_area <- cols_a[area]
+labels_colors(dend) <- col_area[order.dendrogram(dend)]
 
-# Divisive hierarchical clustering (DIANA) just for comparison
-hc4 <- diana(MB_all[3:20])
-pltree(hc4, cex = 1, hang = -1, main = "Dendrogram of diana")
-# Divise coefficient; amount of clustering structure found
-hc4$dc
+plot(dend, main="HCA with sample areas")
+legend("topright", legend = levels(area), fill = cols_a)
+
+# HCA dendrogram, samples color coded by type:
+dend2 <- 
+    pxrf_soil %>%                      # data
+    dist %>%                            # calculate a distance matrix
+    hclust(method = "ward.D2") %>%      # hierarchical clustering 
+    as.dendrogram %>%                   # turn the object into a dendrogram
+    color_branches(k=4)
+
+type <- as.factor(pxrf_soil[, 2])
+n_type <- length(unique(type))
+cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
+col_type <- cols_t[type]
+labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
+
+plot(dend2, main="HCA with new samples by type")
+legend("topright", legend = levels(type), fill = cols_t)
 
 ```
 
-**HCA including all mudbrick samples, only no NA:s elements **: \
+**HCA including all mudbrick samples **: \
 
 ```{r}
-# HCA dendrogam 1
+# HCA dendrogram, samples color coded by area:
 dend <- 
-    pxrf_no_na[1:45, 3:8] %>%           # data
+    pxrf_MB2 %>%                         # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    set("branches_k_color", k=5) %>% 
-    set("branches_lwd", 1.2) %>%
-    set("labels_col", c("red", "black", "blue"), k=5) %>%    
-    set("labels_cex", 1) %>% 
-    set("leaves_pch", NA) 
-# plot the dend in usual "base" plotting engine:
-plot(dend)
+    color_branches(k=4)
 
-# HCA dendrogam 2
-HCA.ward5 <- hclust(dist(pxrf_no_na[1:45, 3:8], method="euclid"), method="ward.D2")
-plot(HCA.ward5, main="Ward's method")
-rect.hclust(HCA.ward5, k=5)
+area <- as.factor(pxrf_MB2[, 1])
+n_area <- length(unique(area))
+cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
+col_area <- cols_a[area]
+labels_colors(dend) <- col_area[order.dendrogram(dend)]
 
-# Divisive hierarchical clustering (DIANA) just for comparison
-hc4 <- diana(pxrf_no_na[3:8])
-pltree(hc4, cex = 1, hang = -1, main = "Dendrogram of diana")
-# Divise coefficient; amount of clustering structure found
-hc4$dc
+plot(dend, main="HCA with sample areas")
+legend("topright", legend = levels(area), fill = cols_a)
 
 ```
 
