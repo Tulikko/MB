@@ -23,17 +23,9 @@ The "bad" elements were excluded from the pXRF results from the get-go. After sc
 # Libraries
 library(openxlsx); 
 library(dplyr);
-
-library(GGally); 
-library(corrplot); 
-library(tidyr); 
-library(cluster); 
-library(ggplot2); 
-library(ggrepel);
-library(ggfortify); 
-library(pca3d);
-library(ggdendro); # dendrograms together with ggplot
-library(dendextend); # dendrograms - change parameters
+library(ggfortify); # PCA autoplots
+library(FactoMineR); # Fast PCA graphs
+library(dendextend); # Dendrograms
 
 # Read the raw data
 pxrf <- read.xlsx("data/pxrf_AYB.xlsx", sep=";")
@@ -42,125 +34,130 @@ pxrf <- read.xlsx("data/pxrf_AYB.xlsx", sep=";")
 pxrf <- filter(pxrf, !grepl('TEST', Sample))
 pxrf <- filter(pxrf, !grepl('ERROR', Sample))
 
-# Turn any "LOD":s and missing values to "NA":s to allow scaling
-# Removing "Na", S", "Cl", "P" and "Ba" already
-values <- c("MgO", "Al2O3", "SiO2", 
-            "K2O", "CaO", "Ti", "V", "Cr", 
-            "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "As", 
-            "Se", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", 
-            "Rh", "Pd", "Ag", "Cd", "Sn", "Sb", 
-            "La", "Ce", "Hf", "Ta", "W", "Pt", "Au", 
-            "Hg", "Tl", "Pb", "Bi", "Th", "U")
+# Remove unused columns
+pxrf <- pxrf %>% 
+        select(-Site) %>% 
+        select(-'Other;name') %>% 
+        select(-'File;#') %>% 
+        select(-DateTime) %>% 
+        select(-Application) %>% 
+        select(-Method) %>% 
+        select(-ElapsedTime) %>% 
+        select(-'Cal;Check')
+  
+# Coercing "< LOD" -results to NA:s  
+pxrf[4:93] <- pxrf[4:93] %>% mutate_if(is.character,as.numeric)
 
-pxrf_NA <- select(pxrf, one_of(values))
-pxrf_NA <- pxrf_NA %>% mutate_if(is.character,as.numeric)
+# Averaging results by "Sample", "Area" and "Type" columns
+pxrf_averaged <- aggregate(pxrf, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
+
+# Removing old (now empty) columns
+pxrf_averaged <- pxrf_averaged %>% select(-Sample)
+pxrf_averaged <- pxrf_averaged %>% select(-Area)
+pxrf_averaged <- pxrf_averaged %>% select(-Type)
+
+# Assigning sample names as new row names 
+rownames(pxrf_averaged) <- pxrf_averaged$Group.1
+pxrf_averaged <- pxrf_averaged %>% select(-Group.1)
+
+# Renaming the other two newly created groups back to "Type" and "Area"
+names(pxrf_averaged)[names(pxrf_averaged) == "Group.2"] <- "Area"
+names(pxrf_averaged)[names(pxrf_averaged) == "Group.3"] <- "Type"
+
+# Removing error columns from the scaled analysis data set
+pxrf_scaled <- pxrf_averaged %>% select(-ends_with("Err"))
 
 # Scaling the data with standard z-score method
-scaled_pxrf <- as.data.frame(scale(pxrf_NA))
+pxrf_scaled[3:47] <- scale(pxrf_scaled[3:47])
 
-# Average data by "Sample", "Area" and "Type" columns from the original dataset
-average_pxrf <- aggregate(scaled_pxrf, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
-
-# Assign sample names as row names, and rename the other newly created columns back to "Type" and "Area" for clarity
-rownames(average_pxrf) <- average_pxrf$Group.1
-average_pxrf <- average_pxrf %>% select(-Group.1)
-names(average_pxrf)[names(average_pxrf) == "Group.2"] <- "Area"
-names(average_pxrf)[names(average_pxrf) == "Group.3"] <- "Type"
-
-# Change "Type" and "Area" to factors
-average_pxrf$Type <- factor(average_pxrf$Type)
-average_pxrf$Area <- factor(average_pxrf$Area)
-
-# Removing columns that only have NA values
+# Removing columns that only contain NA values
 all_na <- function(x) any(!is.na(x))
-pxrf_all <- average_pxrf %>% select_if(all_na)
+pxrf_all <- pxrf_scaled %>% select_if(all_na)
 
-# Removing columns if they contain any NA values at all
-any_na <- function(x) all(!is.na(x))
-pxrf_no_na <- average_pxrf %>% select_if(any_na)
 ```
 
-**pxrf_no_na**: \
+**pxrf_averaged**: All averaged data including averaged errors (Uine's note: for later use)
 
 ```{r}
-summary(pxrf_no_na)
+colnames(pxrf_averaged)
 ```
 
-**pxrf_all**: \
+**pxrf_all**: All elements (the numbers below are the amount of NA values)
 
 ```{r}
-summary(pxrf_all)
+colSums(is.na(pxrf_all))
+```
+
+**pxrf_final**: Final analysis data set with only the selected elements
+
+```{r}
+# Dropping the dubious elements and elements with too many NA values
+pxrf_final <- pxrf_all %>% 
+        select(-Al2O3) %>% 
+        select(-CaO) %>% 
+        select(-SiO2) %>%
+        select(-Cl) %>%  
+        select(-K2O) %>% 
+        select(-Ni) %>% 
+        select(-P2O5) %>%  
+        select(-S) %>% 
+        select(-As) %>% 
+        select(-Pb) 
+
+# Transforming remaining NA values to zeros for analysis
+pxrf_final[is.na(pxrf_final)] <- 0
+
+# Final analysis data set        
+colnames(pxrf_final)
 ```
 
 #### pXRF: K means cluster analysis
 
 ```{r}
-# Drop the more dubious elements
-pxrf_1 <- pxrf_no_na %>% select(-Al2O3)
-pxrf_1 <- pxrf_1 %>% select(-CaO)
-
-# Optimal number of clusters in K-means analysis: 2
-k_max <- 6
-twcss <- sapply(1:k_max, function(k){kmeans(pxrf_1[3:11], k)$tot.withinss})
-qplot(x = 1:k_max, y = twcss, geom = 'line')
+# PC autoplot with K-means clusters
+set.seed(1)
+autoplot(kmeans(pxrf_final[3:12], 4), data = pxrf_final, label = TRUE, label.size = 3)
 
 ```
 
 #### pXRF: PCA
 
-**PCA with only the no-NA:s elements**: \
+**PCA with final elements**: \
 
 ```{r}
-# PCA
-pca_1 <- prcomp(pxrf_1[3:11])
+# Elements
+colnames(pxrf_final[3:12])
+
+# PCA analysis
+pca_1 <- prcomp(pxrf_final[3:12])
 summary(pca_1)
 
-# PCA1 plots
-biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA limited elements")
-
-autoplot(pca_1, data=pxrf_1, colour='Type', shape = FALSE, label = TRUE,  main = "PCA grouped by area")
-
-```
- 
-**PCA with all the feasible elements**: \
-
-```{r}
-# PCA with all elements, NA:s converted to zeros
-pxrf_all[is.na(pxrf_all)] <- 0
-
-pca_2 <- prcomp(pxrf_all[3:21])
-summary(pca_2)
-
-# PCA2 plots
-biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA more elements")
-
-autoplot(pca_2, data=pxrf_all, colour='Type', shape = FALSE, label = TRUE,  main = "PCA more elements grouped by area")
+# PCA plots
+biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Byzantine elements")
+autoplot(pca_1, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Byzantine grouped by sample type")
+PCA(pxrf_final[3:12])
 
 ```
 
 #### pXRF: HCA
 
 ```{r}
-# HCA
-
-# HCA dendrogam 1
-dend <- 
-    pxrf_1[3:11] %>%                    # data
+# HCA dendrogram, samples color coded by type:
+dend2 <- 
+    pxrf_final %>%                      # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    set("branches_k_color", k=4) %>% 
-    set("branches_lwd", 1.2) %>%
-    set("labels_col", c("red", "black", "blue"), k=4) %>%    
-    set("labels_cex", 1) %>% 
-    set("leaves_pch", NA) 
-# plot the dend in usual "base" plotting engine:
-plot(dend)
+    color_branches(k=5)
 
-# HCA dendrogam 2: 
-HCA.ward4 <- hclust(dist(pxrf_1[3:11], method="euclid"), method="ward.D2")
-plot(HCA.ward4, main="HCA with clusters")
-rect.hclust(HCA.ward4, k=4)
+type <- as.factor(pxrf_final[, 2])
+n_type <- length(unique(type))
+cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
+col_type <- cols_t[type]
+labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
+
+plot(dend2, main="HCA with sample types")
+legend("topright", legend = levels(type), fill = cols_t)
 
 ```
 

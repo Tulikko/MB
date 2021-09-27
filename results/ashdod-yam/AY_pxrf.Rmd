@@ -23,7 +23,6 @@ The "bad" elements were excluded from the pXRF results from the get-go. After sc
 # Libraries
 library(openxlsx); 
 library(dplyr);
-library(GGally); # GGpairs
 library(ggfortify); # PCA autoplots
 library(FactoMineR); # Fast PCA graphs
 library(dendextend); # Dendrograms
@@ -117,11 +116,6 @@ colnames(pxrf_final)
 #### pXRF: K means cluster analysis
 
 ```{r}
-# K-means clustering in ggpairs: 2 clusters
-km <-kmeans(pxrf_final[3:12], centers = 2)
-cluster_x <- as.factor(km$cluster)
-ggpairs(pxrf_final[3:12], mapping = aes(col = cluster_x))
-
 # PC autoplot with K-means clusters
 set.seed(1)
 autoplot(kmeans(pxrf_final[3:12], 7), data = pxrf_final, label = TRUE, label.size = 3)

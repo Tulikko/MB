@@ -23,7 +23,6 @@ The "bad" elements were excluded from the pXRF results from the get-go. After sc
 # Libraries
 library(openxlsx); 
 library(dplyr);
-library(GGally); # GGpairs
 library(ggfortify); # PCA autoplots
 library(FactoMineR); # Fast PCA graphs
 library(dendextend); # Dendrograms
@@ -142,11 +141,6 @@ rownames(pxrf_MB2)
 Only the "new" mudbrick samples
 
 ```{r}
-# K-means clustering in ggpairs: 2 clusters
-km <-kmeans(pxrf_MB[3:12], centers = 3)
-cluster_x <- as.factor(km$cluster)
-ggpairs(pxrf_MB[3:12], mapping = aes(col = cluster_x))
-
 # PC autoplot with K-means clusters
 set.seed(1)
 autoplot(kmeans(pxrf_MB[3:12], 3), data = pxrf_MB, label = TRUE, label.size = 3)
