@@ -214,7 +214,7 @@ dend <-
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    color_branches(k=4)
+    color_branches(k=6)
 
 area <- as.factor(pxrf_MB[, 1])
 n_area <- length(unique(area))
@@ -223,6 +223,7 @@ col_area <- cols_a[area]
 labels_colors(dend) <- col_area[order.dendrogram(dend)]
 
 plot(dend, main="HCA with sample areas")
+rect.dendrogram(dend, 4, border = "Black")
 legend("topright", legend = levels(area), fill = cols_a)
 
 # HCA dendrogram, samples color coded by type:
@@ -231,7 +232,7 @@ dend2 <-
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    color_branches(k=4)
+    color_branches(k=6)
 
 type <- as.factor(pxrf_soil[, 2])
 n_type <- length(unique(type))
@@ -240,6 +241,7 @@ col_type <- cols_t[type]
 labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
 
 plot(dend2, main="HCA with new samples by type")
+rect.dendrogram(dend2, 6, border = "Black")
 legend("topright", legend = levels(type), fill = cols_t)
 
 ```
@@ -248,7 +250,7 @@ legend("topright", legend = levels(type), fill = cols_t)
 
 ```{r}
 # HCA dendrogram, samples color coded by area:
-dend <- 
+dend3 <- 
     pxrf_MB2 %>%                         # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
@@ -259,9 +261,10 @@ area <- as.factor(pxrf_MB2[, 1])
 n_area <- length(unique(area))
 cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
 col_area <- cols_a[area]
-labels_colors(dend) <- col_area[order.dendrogram(dend)]
+labels_colors(dend3) <- col_area[order.dendrogram(dend3)]
 
-plot(dend, main="HCA with sample areas")
+plot(dend3, main="HCA with sample areas")
+rect.dendrogram(dend3, 4, border = "Black")
 legend("topright", legend = levels(area), fill = cols_a)
 
 ```

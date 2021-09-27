@@ -157,6 +157,7 @@ col_type <- cols_t[type]
 labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
 
 plot(dend2, main="HCA with sample types")
+rect.dendrogram(dend2, 5, border = "Black")
 legend("topright", legend = levels(type), fill = cols_t)
 
 ```
