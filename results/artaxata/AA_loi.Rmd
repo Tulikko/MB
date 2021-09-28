@@ -25,9 +25,6 @@ library(reshape2) # Melt-function for reshaping data to long form
 loi <- read.xlsx("data/loi_AA.xlsx", sep=";")
 tga <- read.xlsx("data/tga_AA.xlsx", sep=";")
 
-summary(loi)
-summary(tga)
-
 # Remove rows containing words 'kekkila' (internal standard)
 tga <- filter(tga, !grepl('kekkila', Name))
 
@@ -55,6 +52,18 @@ tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
 
 ```
 
+**LOI dataset**: \
+
+```{r}
+loi[c(8:9,13:14)]
+```
+
+**TGA dataset**: \
+
+```{r}
+tga[c(8:9,10:11)]
+```
+
 #### Manual LOI results
 
 ```{r}
@@ -62,15 +71,15 @@ tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
 loi_long <- loi[c(8,13:14)]
 loi_long <- melt(loi_long, id = "context") # Reshaping data to long form
 
-ggplot(loi_long, aes(x = variable, y = value, color = context)) +  
-  geom_boxplot() +
-  labs(title="Traditional LOI by temperature",
-        x ="Temperature", y = "LOI")
-
 ggplot(loi_long, aes(x = context, y = value, color = variable)) +  
   geom_boxplot() +
   labs(title="Traditional LOI by context",
         x ="Context", y = "LOI")
+
+ggplot(loi_long, aes(x = variable, y = value, color = context)) +  
+  geom_boxplot() +
+  labs(title="Traditional LOI by temperature",
+        x ="Temperature", y = "LOI")
 
 # Color by context
 ggplot(loi, 
@@ -107,7 +116,7 @@ ggplot(tga_long, aes(x = context, y = value, color = variable)) +
   labs(title="Thermogravimeter LOI by context",
         x ="Context", y = "LOI")
 
-# Color by context biplot
+# Color by context
 ggplot(tga, 
       aes(c550, c950, label = rownames(tga), colour = factor(context))) +
       geom_point(size=2) +

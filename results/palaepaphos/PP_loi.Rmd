@@ -25,9 +25,6 @@ library(reshape2) # Melt-function for reshaping data to long form
 loi <- read.xlsx("data/loi_PP.xlsx", sep=";")
 tga <- read.xlsx("data/tga_PP.xlsx", sep=";")
 
-summary(loi)
-summary(tga)
-
 # Remove rows containing words 'kekkila' (internal standard)
 tga <- filter(tga, !grepl('kekkila', Name))
 
@@ -53,6 +50,18 @@ loi$c950 <- (loi$c550mass - loi$c950mass)/(loi$c550mass) * 100
 tga$c550 <- (tga$Dry - tga$Mass_550)/(tga$Dry) * 100
 tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
 
+```
+
+**LOI dataset**: \
+
+```{r}
+loi[c(8:9,13:14)]
+```
+
+**TGA dataset**: \
+
+```{r}
+tga[c(8:9,10:11)]
 ```
 
 #### Manual LOI results
