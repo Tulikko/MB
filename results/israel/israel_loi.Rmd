@@ -20,6 +20,7 @@ library(dplyr);
 library(ggplot2); 
 library(ggrepel);
 library(tidyr); 
+library(reshape2) # Melt-function for reshaping data to long form
 
 loi <- read.xlsx("data/loi_israel.xlsx", sep=";")
 tga <- read.xlsx("data/tga_israel.xlsx", sep=";")
@@ -56,10 +57,22 @@ tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
 
 #### Manual LOI results
 
+NOTE! Remember to remove Ah-Halom floor and plaster samples from boxplots!
+
 ```{r}
-# Distribution of LOI in 550 C (1) and 950 C (2)
-boxplot(c550~context, data=loi)
-boxplot(c950~context, data=loi)
+# Colored boxplots in same graph
+loi_long <- loi[c(8,13:14)]
+loi_long <- melt(loi_long, id = "context") # Reshaping data to long form
+
+ggplot(loi_long, aes(x = variable, y = value, color = context)) +  
+  geom_boxplot() +
+  labs(title="Traditional LOI by temperature",
+        x ="Temperature", y = "LOI")
+
+ggplot(loi_long, aes(x = context, y = value, color = variable)) +  
+  geom_boxplot() +
+  labs(title="Traditional LOI by context",
+        x ="Context", y = "LOI")
 
 # Color by context
 ggplot(loi, 
@@ -92,11 +105,21 @@ ggplot(loi_long, aes(x = reorder(sample, value), y = value, fill = var)) +
 #### TGA LOI results
 
 ```{r}
-# Distribution of LOI in 550 C (1) and 950 C (2)
-boxplot(c550~context, data=tga)
-boxplot(c950~context, data=tga)
+# Colored boxplots in same graph
+tga_long <- tga[c(8,10:11)]
+tga_long <- melt(tga_long, id = "context") # Reshaping data to long form
 
-# Color by context
+ggplot(tga_long, aes(x = variable, y = value, color = context)) +  
+  geom_boxplot() +
+  labs(title="Thermogravimeter LOI by temperature",
+        x ="Temperature", y = "LOI")
+
+ggplot(tga_long, aes(x = context, y = value, color = variable)) +  
+  geom_boxplot() +
+  labs(title="Thermogravimeter LOI by context",
+        x ="Context", y = "LOI")
+
+# Color by context biplot
 ggplot(tga, 
       aes(c550, c950, label = rownames(tga), colour = factor(context))) +
       geom_point(size=2) +

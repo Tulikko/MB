@@ -20,6 +20,7 @@ library(dplyr);
 library(ggplot2); 
 library(ggrepel);
 library(tidyr); 
+library(reshape2) # Melt-function for reshaping data to long form
 
 loi <- read.xlsx("data/loi_AYB.xlsx", sep=";")
 tga <- read.xlsx("data/tga_AYB.xlsx", sep=";")
@@ -57,8 +58,14 @@ tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
 #### Manual LOI results
 
 ```{r}
-# Total distribution of LOI in 550 C (1) and 950 C (2)
-boxplot(loi$c550, loi$c950)
+# Colored boxplots in same graph
+loi_long <- loi[c(8,13:14)]
+loi_long <- melt(loi_long, id = "context") # Reshaping data to long form
+
+ggplot(loi_long, aes(x = context, y = value, color = variable)) +  
+  geom_boxplot() +
+  labs(title="Traditional LOI by context",
+        x ="Context", y = "LOI")
 
 # Color by type      
 ggplot(loi, 
@@ -82,10 +89,16 @@ ggplot(loi_long, aes(x = reorder(sample, value), y = value, fill = var)) +
 #### TGA LOI results
 
 ```{r}
-# Total distribution of LOI in 550 C (1) and 950 C (2)
-boxplot(loi$c550, loi$c950)
+# Colored boxplots in same graph
+tga_long <- tga[c(8,10:11)]
+tga_long <- melt(tga_long, id = "context") # Reshaping data to long form
 
-# Color by type      
+ggplot(tga_long, aes(x = context, y = value, color = variable)) +  
+  geom_boxplot() +
+  labs(title="Thermogravimeter LOI by context",
+        x ="Context", y = "LOI")
+
+# Color by type biplot   
 ggplot(tga, 
       aes(c550, c950, label = rownames(tga), colour = factor(type))) +
       geom_point(size=2) +
@@ -93,7 +106,6 @@ ggplot(tga,
       xlab('Organic LOI (%)') +
       ylab('Carbonate LOI (%)') +
       theme(axis.title = element_text())
-    
 
 # Stacked barplot (x = reorder(sample, LOI))
 tga_long = gather(tga, key = var, value = value, c550, c950)
