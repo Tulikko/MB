@@ -132,10 +132,23 @@ colnames(pxrf_final[3:12])
 pca_1 <- prcomp(pxrf_final[3:12])
 summary(pca_1)
 
+# NO COPPER: Elements
+pxrf_noCu <- pxrf_final[-7]
+colnames(pxrf_noCu[3:11])
+
+# NO COPPER: PCA analysis
+pca_2 <- prcomp(pxrf_noCu[3:11])
+summary(pca_2)
+
 # PCA plots
-biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Byzantine elements")
-autoplot(pca_1, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Byzantine grouped by sample type")
+biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Ashdod-Yam Byzantine elements")
+biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Ashdod-Yam Byzantine elements (NO COPPER)")
+
+autoplot(pca_1, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam Byzantine grouped by sample type")
+autoplot(pca_2, data=pxrf_noCu, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam Byzantine grouped by sample type (NO COPPER)")
+
 PCA(pxrf_final[3:12])
+PCA(pxrf_noCu[3:11])
 
 ```
 

@@ -143,10 +143,23 @@ colnames(pxrf_MB[3:12])
 pca_1 <- prcomp(pxrf_MB[3:12])
 summary(pca_1)
 
+# NO COPPER: Elements
+pxrf_noCuMB <- pxrf_MB[-7]
+colnames(pxrf_noCuMB[3:11])
+
+# NO COPPER: PCA analysis
+pca_2 <- prcomp(pxrf_noCuMB[3:11])
+summary(pca_2)
+
 # PCA plots
 biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
+biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements (NO COPPER)")
+
 autoplot(pca_1, data=pxrf_MB, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+autoplot(pca_2, data=pxrf_noCuMB, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area (NO COPPER)")
+
 PCA(pxrf_MB[3:12])
+PCA(pxrf_noCuMB[3:11])
 
 ```
 
@@ -157,14 +170,29 @@ PCA(pxrf_MB[3:12])
 colnames(pxrf_final[3:12])
 
 # PCA analysis
-pca_2 <- prcomp(pxrf_final[3:12])
+pca_3 <- prcomp(pxrf_final[3:12])
+summary(pca_2)
+
+# NO COPPER: Elements
+pxrf_noCu <- pxrf_final[-7]
+colnames(pxrf_noCu[3:11])
+
+# NO COPPER: PCA analysis
+pca_4 <- prcomp(pxrf_noCu[3:11])
 summary(pca_2)
 
 # PCA plots
-biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
-autoplot(pca_2, data=pxrf_final, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
-autoplot(pca_2, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
+biplot(pca_3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
+biplot(pca_4, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements (NO COPPER)")
+
+autoplot(pca_3, data=pxrf_final, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+autoplot(pca_4, data=pxrf_noCu, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area (NO COPPER)")
+
+autoplot(pca_3, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
+autoplot(pca_4, data=pxrf_noCu, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type (NO COPPER)")
+
 PCA(pxrf_final[3:12])
+PCA(pxrf_noCu[3:11])
 
 ```
 
