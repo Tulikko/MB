@@ -74,8 +74,6 @@ pxrf_scaled[3:47] <- scale(pxrf_scaled[3:47])
 all_na <- function(x) any(!is.na(x))
 pxrf_all <- pxrf_scaled %>% select_if(all_na)
 
-
-
 ```
 
 **pxrf_averaged**: All averaged data including averaged errors (Uine's note: for later use)
@@ -90,7 +88,7 @@ colnames(pxrf_averaged)
 colSums(is.na(pxrf_all))
 ```
 
-**pxrf_final**: Final analysis data set with only the selected elements, all samples (soil and published included)
+**pxrf_final**: Final analysis data set with only the selected elements
 
 ```{r}
 # Dropping the dubious elements and elements with too many NA values
@@ -115,30 +113,16 @@ pxrf_final[is.na(pxrf_final)] <- 0
 colnames(pxrf_final)
 ```
 
-**pxrf_MB**: Final analysis data set for NEW MUDBRICK samples only (= no soil or published samples)
+**pxrf_MB**: Final analysis data set for MUDBRICK samples only (= no soil)
 
 ```{r}
 pxrf_MB <- pxrf_final[c(1:11), ]
 rownames(pxrf_MB)
 ```
 
-**pxrf_soil**: Final analysis data set for NEW samples only (= no published samples, yes soil)
-
-```{r}
-pxrf_soil <- pxrf_final[-c(12:45), ]
-rownames(pxrf_soil)
-```
-
-**pxrf_MB2**: Final analysis data set for ALL MUDBRICK samples  (= no soil)
-
-```{r}
-pxrf_MB2 <- pxrf_final[c(1:45), ]
-rownames(pxrf_MB2)
-```
-
 #### pXRF: K means cluster analysis
 
-Only the "new" mudbrick samples
+Only mudbrick samples
 
 ```{r}
 # PC autoplot with K-means clusters
@@ -149,7 +133,7 @@ autoplot(kmeans(pxrf_MB[3:12], 3), data = pxrf_MB, label = TRUE, label.size = 3)
 
 #### pXRF: PCA
 
-**PCA with only new mudbrick samples**: 
+**PCA with only mudbrick samples**: 
 
 ```{r}
 # Elements
@@ -170,36 +154,17 @@ PCA(pxrf_MB[3:12])
 
 ```{r}
 # Elements
-colnames(pxrf_soil[3:12])
+colnames(pxrf_final[3:12])
 
 # PCA analysis
-pca_2 <- prcomp(pxrf_soil[3:12])
+pca_2 <- prcomp(pxrf_final[3:12])
 summary(pca_2)
 
 # PCA plots
 biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
-autoplot(pca_2, data=pxrf_soil, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
-autoplot(pca_2, data=pxrf_soil, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
-PCA(pxrf_soil[3:12])
-
-```
-
-#### PCA with all the mudbrick samples 
-
-Including the previously published ones, no soil
-
-```{r}
-# Elements
-colnames(pxrf_MB2[3:12])
-
-# PCA analysis
-pca_3 <- prcomp(pxrf_MB2[3:12])
-summary(pca_3)
-
-# PCA plots
-biplot(pca_3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
-autoplot(pca_3, data=pxrf_MB2, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
-PCA(pxrf_MB2[3:12])
+autoplot(pca_2, data=pxrf_final, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+autoplot(pca_2, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
+PCA(pxrf_final[3:12])
 
 ```
 
@@ -228,13 +193,13 @@ legend("topright", legend = levels(area), fill = cols_a)
 
 # HCA dendrogram, samples color coded by type:
 dend2 <- 
-    pxrf_soil %>%                      # data
+    pxrf_final %>%                      # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
     color_branches(k=6)
 
-type <- as.factor(pxrf_soil[, 2])
+type <- as.factor(pxrf_final[, 2])
 n_type <- length(unique(type))
 cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
 col_type <- cols_t[type]
@@ -243,29 +208,6 @@ labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
 plot(dend2, main="HCA with new samples by type")
 rect.dendrogram(dend2, 6, border = "Black")
 legend("topright", legend = levels(type), fill = cols_t)
-
-```
-
-**HCA including all mudbrick samples **: \
-
-```{r}
-# HCA dendrogram, samples color coded by area:
-dend3 <- 
-    pxrf_MB2 %>%                         # data
-    dist %>%                            # calculate a distance matrix
-    hclust(method = "ward.D2") %>%      # hierarchical clustering 
-    as.dendrogram %>%                   # turn the object into a dendrogram
-    color_branches(k=4)
-
-area <- as.factor(pxrf_MB2[, 1])
-n_area <- length(unique(area))
-cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
-col_area <- cols_a[area]
-labels_colors(dend3) <- col_area[order.dendrogram(dend3)]
-
-plot(dend3, main="HCA with sample areas")
-rect.dendrogram(dend3, 4, border = "Black")
-legend("topright", legend = levels(area), fill = cols_a)
 
 ```
 
