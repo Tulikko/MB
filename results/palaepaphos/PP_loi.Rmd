@@ -64,47 +64,76 @@ loi[c(8:9,13:14)]
 tga[c(8:9,10:11)]
 ```
 
-#### Manual LOI results
+#### Boxplots
 
 ```{r}
-# Removing duplicates and creating MB only subset
+# Trad LOI: Removing duplicates and creating MB only subset
 loi2 <- subset(loi[1:19, ])
 loi_MB <- subset(loi2[9:19, ])
-rownames(loi_MB)
+loi_MB_long <- loi_MB[c(8,13:14)] # Reshaping data to long form
+loi_MB_long <- melt(loi_MB_long, id = "context") 
 
-# Colored boxplots in same graph
-loi_MB_long <- loi_MB[c(8,13:14)]
-loi_MB_long <- melt(loi_MB_long, id = "context") # Reshaping data to long form
+# TGA LOI: Creating MB only subset
+tga_MB1 <- subset(tga[9:22, ])
+tga_MB_long <- tga_MB1[c(8,10:11)] # Reshaping data to long form
+tga_MB_long <- melt(tga_MB_long, id = "context") 
 
+# Colored boxplots: Trad LOI, MB only
 ggplot(loi_MB_long, aes(x = variable, y = value, color = context)) +  
   geom_boxplot() +
-  labs(title="Traditional LOI by temperature (MB only)",
+  labs(title="Traditional LOI (MB only)",
         x ="Temperature", y = "LOI")
 
-ggplot(loi_MB_long, aes(x = context, y = value, color = variable)) +  
+# Colored boxplots: TGA LOI, MB only
+ggplot(tga_MB_long, aes(x = variable, y = value, color = context)) +  
   geom_boxplot() +
-  labs(title="Traditional LOI by context (MB only)",
-        x ="Context", y = "LOI")
+  labs(title="Thermogravimeter LOI (MB only)",
+        x ="Temperature", y = "LOI")
 
-# Colored boxplots in same graph: Soil samples included
+# Soil samples included: data preparation
 loi_long <- loi[c(8,13:14)]
 loi_long <- melt(loi_long, id = "context") # Reshaping data to long form
 
+tga_long <- tga[c(8,10:11)]
+tga_long <- melt(tga_long, id = "context") # Reshaping data to long form
+
+# Colored boxplots: Trad LOI, soil samples included
 ggplot(loi_long, aes(x = variable, y = value, color = context)) +  
   geom_boxplot() +
-  labs(title="Traditional LOI by temperature (soil included)",
+  labs(title="Traditional LOI (soil included)",
         x ="Temperature", y = "LOI")
 
-ggplot(loi_long, aes(x = context, y = value, color = variable)) +  
+# Colored boxplots: TGA LOI, soil samples included
+ggplot(tga_long, aes(x = variable, y = value, color = context)) +  
   geom_boxplot() +
-  labs(title="Traditional LOI by context (soil included)",
-        x ="Context", y = "LOI")
+  labs(title="Thermogravimeter LOI (soil included)",
+        x ="Temperature", y = "LOI")
 
+```
+
+#### Biplots
+
+```{r}
 # MB only biplot
 ggplot(loi_MB, 
       aes(c550, c950, label = rownames(loi_MB), colour = factor(context))) +
       geom_point(size=2) +
-      geom_text_repel(size=3) + labs(title = "MB only organic vs. carbonate content") +
+      geom_text_repel(size=3) + 
+      labs(title = "Trad LOI: MB only, organic vs. carbonate content") +
+      xlab('Organic LOI (%)') +
+      ylab('Carbonate LOI (%)') +
+      theme(axis.title = element_text())
+
+# TGA: Removing duplicates and creating MB only subset
+tga_MB <- subset(tga[9:20, ])
+tga_MB <- subset(tga_MB[-4, ])
+
+# Color by context biplot
+ggplot(tga_MB, 
+      aes(c550, c950, label = rownames(tga_MB), colour = factor(context))) +
+      geom_point(size=2) +
+      geom_text_repel(size=3) + 
+      labs(title = "TGA LOI: MB only, organic vs. carbonate content") +
       xlab('Organic LOI (%)') +
       ylab('Carbonate LOI (%)') +
       theme(axis.title = element_text())
@@ -113,7 +142,8 @@ ggplot(loi_MB,
 ggplot(loi, 
       aes(c550, c950, label = rownames(loi), colour = factor(context))) +
       geom_point(size=2, aes(shape = factor(type))) +
-      geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
+      geom_text_repel(size=3) + 
+      labs(title = "Trad LOI: organic vs. carbonate content - color by context") +
       xlab('Organic LOI (%)') +
       ylab('Carbonate LOI (%)') +
       theme(axis.title = element_text())
@@ -122,74 +152,31 @@ ggplot(loi,
 ggplot(loi, 
       aes(c550, c950)) +
       geom_point(size=2, aes(colour = factor(type))) +
-      labs(title = "Organic vs. carbonate content") +
+      labs(title = "Trad LOI: organic vs. carbonate content - color by type") +
       xlab('Organic LOI (%)') +
       ylab('Carbonate LOI (%)') +
       theme(axis.title = element_text())
-
-# Stacked barplot (x = reorder(sample, LOI))
-loi_long = gather(loi_MB, key = var, value = value, c550, c950)
-
-ggplot(loi_long, aes(x = reorder(sample, value), y = value, fill = var)) +
-  geom_bar(stat = 'identity', position = 'stack') + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 ```
 
-#### TGA LOI results
+#### Stacked barplots
 
 ```{r}
-# Creating MB only subset
-tga_MB1 <- subset(tga[9:22, ])
+# Stacked barplot (x = reorder(sample, LOI))
+loi_long = gather(loi_MB, key = Temp, value = value, c550, c950)
 
-# Colored boxplots in same graph
-tga_MB_long <- tga_MB1[c(8,10:11)]
-tga_MB_long <- melt(tga_MB_long, id = "context") # Reshaping data to long form
-
-ggplot(tga_MB_long, aes(x = variable, y = value, color = context)) +  
-  geom_boxplot() +
-  labs(title="Thermogravimeter LOI by temperature",
-        x ="Temperature", y = "LOI")
-
-ggplot(tga_MB_long, aes(x = context, y = value, color = variable)) +  
-  geom_boxplot() +
-  labs(title="Thermogravimeter LOI by context",
-        x ="Context", y = "LOI")
-
-# Colored boxplots in same graph: soil samples included
-tga_long <- tga[c(8,10:11)]
-tga_long <- melt(tga_long, id = "context") # Reshaping data to long form
-
-ggplot(tga_long, aes(x = variable, y = value, color = context)) +  
-  geom_boxplot() +
-  labs(title="Thermogravimeter LOI by temperature",
-        x ="Temperature", y = "LOI")
-
-ggplot(tga_long, aes(x = context, y = value, color = variable)) +  
-  geom_boxplot() +
-  labs(title="Thermogravimeter LOI by context",
-        x ="Context", y = "LOI")
-
-# Removing duplicates and creating MB only subset
-tga_MB <- subset(tga[9:20, ])
-tga_MB <- subset(tga_MB[-4, ])
-rownames(tga_MB)
-
-# Color by context biplot
-ggplot(tga_MB, 
-      aes(c550, c950, label = rownames(tga_MB), colour = factor(context))) +
-      geom_point(size=2) +
-      geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
-      xlab('Organic LOI (%)') +
-      ylab('Carbonate LOI (%)') +
-      theme(axis.title = element_text())
+ggplot(loi_long, aes(x = reorder(sample, value), y = value, fill = Temp)) +
+  geom_bar(stat = 'identity', position = 'stack') + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    labs(title="Traditional LOI (MB only)", x = "", y = "LOI (%)")
 
 # Stacked barplot (x = reorder(sample, LOI))
-tga_long = gather(tga_MB, key = var, value = value, c550, c950)
+tga_long = gather(tga_MB, key = Temp, value = value, c550, c950)
 
-ggplot(tga_long, aes(x = reorder(Name, value), y = value, fill = var)) +
+ggplot(tga_long, aes(x = reorder(Name, value), y = value, fill = Temp)) +
   geom_bar(stat = 'identity', position = 'stack') + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    labs(title="Thermogravimeter LOI (MB only)", x = "", y = "LOI (%)")
 
 ```
 
