@@ -156,22 +156,22 @@ PCA(pxrf_noCu[3:11])
 
 ```{r}
 # HCA dendrogram, samples color coded by type:
-dend2 <- 
+dend <- 
     pxrf_final %>%                      # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    color_branches(k=5)
+    highlight_branches_col
 
-type <- as.factor(pxrf_final[, 2])
-n_type <- length(unique(type))
-cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
-col_type <- cols_t[type]
-labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
+    type <- as.factor(pxrf_final[, 2])
+    n_type <- length(unique(type))
+    cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
+    col_type <- cols_t[type]
+    labels_colors(dend) <- col_type[order.dendrogram(dend)]
 
-plot(dend2, main="HCA with sample types")
-rect.dendrogram(dend2, 5, border = "Black")
-legend("topright", legend = levels(type), fill = cols_t)
+    plot(dend, main="HCA with sample types (Copper included)")
+    rect.dendrogram(dend, 5, border = "Black", lty = 5)
+    legend("topright", legend = levels(type), fill = cols_t)
 
 # NO COPPER: HCA dendrogram, samples color coded by area:
 dend2 <- 
@@ -179,17 +179,17 @@ dend2 <-
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    color_branches(k=5)
+    highlight_branches_col
 
-type <- as.factor(pxrf_noCu[, 2])
-n_type <- length(unique(type))
-cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
-col_type <- cols_t[type]
-labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
+    type <- as.factor(pxrf_noCu[, 2])
+    n_type <- length(unique(type))
+    cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
+    col_type <- cols_t[type]
+    labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
 
-plot(dend2, main="HCA with sample types (NO COPPER)")
-rect.dendrogram(dend2, 5, border = "Black")
-legend("topright", legend = levels(type), fill = cols_t)
+    plot(dend2, main="HCA with sample types (NO COPPER)")
+    rect.dendrogram(dend2, 5, border = "Black", lty = 5)
+    legend("topright", legend = levels(type), fill = cols_t)
 
 ```
 

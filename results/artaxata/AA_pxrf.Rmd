@@ -164,35 +164,35 @@ dend <-
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    color_branches(k=5)
+    highlight_branches_col
 
-area <- as.factor(pxrf_final[, 1])
-n_area <- length(unique(area))
-cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
-col_area <- cols_a[area]
-labels_colors(dend) <- col_area[order.dendrogram(dend)]
+    area <- as.factor(pxrf_final[, 1])
+    n_area <- length(unique(area))
+    cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
+    col_area <- cols_a[area]
+    labels_colors(dend) <- col_area[order.dendrogram(dend)]
 
-plot(dend, main="HCA with sample areas")
-rect.dendrogram(dend, 5, border = "Black")
-legend("topright", legend = levels(area), fill = cols_a)
+    plot(dend, main="HCA with sample areas (Copper included)")
+    rect.dendrogram(dend, 5, border = "Black", lty = 5)
+    legend("topright", legend = levels(area), fill = cols_a)
 
 # NO COPPER: HCA dendrogram, samples color coded by area:
-dend <- 
+dend2 <- 
     pxrf_noCu %>%                      # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
-    color_branches(k=7)
+    highlight_branches_col
 
-area <- as.factor(pxrf_noCu[, 1])
-n_area <- length(unique(area))
-cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
-col_area <- cols_a[area]
-labels_colors(dend) <- col_area[order.dendrogram(dend)]
+    area <- as.factor(pxrf_noCu[, 1])
+    n_area <- length(unique(area))
+    cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
+    col_area <- cols_a[area]
+    labels_colors(dend2) <- col_area[order.dendrogram(dend2)]
 
-plot(dend, main="HCA with sample areas (NO COPPER)")
-rect.dendrogram(dend, 7, border = "Black")
-legend("topright", legend = levels(area), fill = cols_a)
+    plot(dend2, main="HCA with sample areas (NO COPPER)")
+    rect.dendrogram(dend2, 4, border = "Black", lty = 5)
+    legend("topright", legend = levels(area), fill = cols_a)
 
 ```
 
