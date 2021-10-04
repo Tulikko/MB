@@ -173,5 +173,23 @@ plot(dend2, main="HCA with sample types")
 rect.dendrogram(dend2, 5, border = "Black")
 legend("topright", legend = levels(type), fill = cols_t)
 
+# NO COPPER: HCA dendrogram, samples color coded by area:
+dend2 <- 
+    pxrf_noCu %>%                      # data
+    dist %>%                            # calculate a distance matrix
+    hclust(method = "ward.D2") %>%      # hierarchical clustering 
+    as.dendrogram %>%                   # turn the object into a dendrogram
+    color_branches(k=5)
+
+type <- as.factor(pxrf_noCu[, 2])
+n_type <- length(unique(type))
+cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
+col_type <- cols_t[type]
+labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
+
+plot(dend2, main="HCA with sample types (NO COPPER)")
+rect.dendrogram(dend2, 5, border = "Black")
+legend("topright", legend = levels(type), fill = cols_t)
+
 ```
 
