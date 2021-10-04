@@ -18,8 +18,7 @@ We did loss on ignition analysis both in the traditional manual method and with 
 library(openxlsx); 
 library(dplyr); 
 library(ggplot2); 
-library(ggrepel);
-library(tidyr); 
+library(ggrepel); # Preventing labels from overlapping
 library(reshape2) # Melt-function for reshaping data to long form
 
 loi <- read.xlsx("data/loi_AY.xlsx", sep=";")
@@ -36,9 +35,7 @@ rownames(loi) <- loi$sample
 rownames(tga) <- tga$Name
 
 # Creating new columns for analysis by subtracting crucible mass;
-# "dry" (sample mass after drying)
-# "c550" (sample mass after 550 C)
-# "c950" (sample mass after 950 C)
+# "dry" (mass after drying), "c550" (mass after 550 C), "c950" (mass after 950 C)
 loi$dry <- (loi$dry_weight - loi$crucible)
 loi$c550mass <- (loi$after_550_C - loi$crucible)
 loi$c950mass <- (loi$after_950_C - loi$crucible)
@@ -49,6 +46,22 @@ loi$c950 <- (loi$c550mass - loi$c950mass)/(loi$c550mass) * 100
 # Same with TGA
 tga$c550 <- (tga$Dry - tga$Mass_550)/(tga$Dry) * 100
 tga$c950 <- (tga$Mass_550 - tga$Mass_950)/(tga$Mass_550) * 100
+
+# Removing duplicates for clarity
+loi <- subset(loi[1:47, ])
+tga <- subset(tga[-c(18,20,47,49), ])
+
+# Transforming data to long form 
+loi_long <- loi[c(8,13:14)]
+loi_long <- melt(loi_long, id = "context") 
+
+tga_long <- tga[c(8,10:11)]
+tga_long <- melt(tga_long, id = "context") 
+
+# Long form data for stacked barplots
+loi_long2 <- melt(loi[c(1,13:14)], value.name = "Temp", id= "sample") 
+
+tga_long2 <- melt(tga[c(1,10:11)], value.name = "Temp", id= "Name")
 
 ```
 
@@ -64,86 +77,70 @@ loi[c(8:9,13:14)]
 tga[c(8:9,10:11)]
 ```
 
-#### Manual LOI results
+#### Boxplots
 
 ```{r}
-# Colored boxplots in same graph
-loi_long <- loi[c(8,13:14)]
-loi_long <- melt(loi_long, id = "context") # Reshaping data to long form
-
+# Colored boxplots: Trad LOI
 ggplot(loi_long, aes(x = variable, y = value, color = context)) +  
   geom_boxplot() +
-  labs(title="Traditional LOI by temperature",
+  labs(title="Traditional LOI",
         x ="Temperature", y = "LOI")
 
-ggplot(loi_long, aes(x = context, y = value, color = variable)) +  
+# Colored boxplots: TGA LOI
+ggplot(tga_long, aes(x = variable, y = value, color = context)) +  
   geom_boxplot() +
-  labs(title="Traditional LOI by context",
-        x ="Context", y = "LOI")
-
-# Removing duplicates from the next graph
-loi <- subset(loi[1:47, ])
-
-# Color by context
-ggplot(loi, 
-      aes(c550, c950, label = rownames(loi), colour = factor(context))) +
-      geom_point(size=2, aes(shape = factor(type))) +
-      geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
-      xlab('Organic LOI (%)') +
-      ylab('Carbonate LOI (%)') +
-      theme(axis.title = element_text())
-     
-# Color by type
-ggplot(loi, 
-      aes(c550, c950)) +
-      geom_point(size=2, aes(shape = factor(type), colour = factor(context))) +
-      labs(title = "Organic vs. carbonate content") +
-      xlab('Organic LOI (%)') +
-      ylab('Carbonate LOI (%)') +
-      theme(axis.title = element_text())
-
-# Stacked barplot (x = reorder(sample, LOI))
-loi_long = gather(loi, key = var, value = value, c550, c950)
-
-ggplot(loi_long, aes(x = reorder(sample, value), y = value, fill = var)) +
-  geom_bar(stat = 'identity', position = 'stack') + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
+  labs(title="Thermogravimeter LOI",
+        x ="Temperature", y = "LOI")
 
 ```
 
-#### TGA LOI results
+#### Biplots
 
 ```{r}
-# Colored boxplots in same graph
-tga_long <- tga[c(8,10:11)]
-tga_long <- melt(tga_long, id = "context") # Reshaping data to long form
+# Color by context biplot: Trad LOI
+ggplot(loi, 
+      aes(c550, c950, label = rownames(loi), colour = factor(context))) +
+      geom_point(size=2, aes(shape = factor(type))) +
+      geom_text_repel(size=3) + 
+      labs(title = "Traditional LOI - color by context", 
+           color = "Context",
+           x = "Organic LOI (%)", 
+           y = "Carbonate LOI (%)") +
+      theme(axis.title = element_text())
 
-ggplot(tga_long, aes(x = variable, y = value, color = context)) +  
-  geom_boxplot() +
-  labs(title="Thermogravimeter LOI by temperature",
-        x ="Temperature", y = "LOI")
-
-ggplot(tga_long, aes(x = context, y = value, color = variable)) +  
-  geom_boxplot() +
-  labs(title="Thermogravimeter LOI by context",
-        x ="Context", y = "LOI")
-
-# Color by context biplot
+# Color by context biplot: TGA
 ggplot(tga, 
       aes(c550, c950, label = rownames(tga), colour = factor(context))) +
-      geom_point(size=2) +
-      geom_text_repel(size=3) + labs(title = "Organic vs. carbonate content") +
-      xlab('Organic LOI (%)') +
-      ylab('Carbonate LOI (%)') +
+      geom_point(size=2, aes(shape = factor(type))) +
+      geom_text_repel(size=3) + 
+      labs(title = "TGA LOI - color by context", 
+           color = "Context",
+           x = "Organic LOI (%)", 
+           y = "Carbonate LOI (%)") +
       theme(axis.title = element_text())
       
-# Stacked barplot (x = reorder(sample, LOI))
-tga_long = gather(tga, key = var, value = value, c550, c950)
+```
 
-ggplot(tga_long, aes(x = reorder(Name, value), y = value, fill = var)) +
+#### Stacked barplots
+
+```{r}
+# Trad LOI stacked barplot
+ggplot(loi_long2, aes(x = reorder(sample, Temp), y = Temp, fill = variable)) +
   geom_bar(stat = 'identity', position = 'stack') + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    labs(title="Traditional LOI", 
+         fill="Temperature",
+         x = "", 
+         y = "LOI (%)")
+
+# TGA LOI stacked barplot
+ggplot(tga_long2, aes(x = reorder(Name, Temp), y = Temp, fill = variable)) +
+  geom_bar(stat = 'identity', position = 'stack') + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    labs(title="Thermogravimeter LOI",
+         fill="Temperature",
+         x = "", 
+         y = "LOI (%)")
 
 ```
 
