@@ -15,7 +15,8 @@ output:
 # Libraries
 library(dplyr); 
 library(openxlsx); 
-library(ggtern)
+library(ggtern);
+library(reshape2)
 
 # Read and filter data
 grain <- read.xlsx("data/grain_PP.xlsx", sep=";")
@@ -35,7 +36,7 @@ grain <- grain %>% select(-Type)
 
 # Assign sample names ("Group.1") as row names, and rename the other created columns back to "Type" and "Area" for clarity
 rownames(grain) <- grain$Group.1
-grain <- grain %>% select(-Group.1)
+names(grain)[names(grain) == "Group.1"] <- "Sample"
 names(grain)[names(grain) == "Group.2"] <- "Context"
 names(grain)[names(grain) == "Group.3"] <- "Type"
 
@@ -44,7 +45,7 @@ names(grain)[names(grain) == "Group.3"] <- "Type"
 normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-min(x, na.rm=TRUE))}
 
 # Apply function "normalize" to clay, silt and sand columns
-grain_01 <- as.data.frame(apply(grain[4:6], 2, normalize))
+grain_01 <- as.data.frame(apply(grain[5:7], 2, normalize))
 
 ```
 
@@ -68,6 +69,18 @@ ggtern(data=grain_01, aes(x=Clay, y=Sand, z=Silt, color=grain$Context)) +
   theme_nomask() +
   geom_mask() +
   geom_point(size=2) 
+
+```
+
+#### Line plots
+
+```{r}
+# Reshaping data to long form
+grain_long <- melt(grain[c(1,14:113)], id = "Sample") 
+
+ggplot(grain_long, aes(x=variable, y=value, color=Sample, group=Sample)) +
+    geom_line() +
+    ggtitle("Grain size distribution curves")
 
 ```
 
