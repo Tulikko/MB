@@ -170,7 +170,7 @@ PCA(pxrf_final[3:12])
 
 #### pXRF: HCA
 
-**HCA including only new samples**: \
+**HCA including only MB samples, colored by area**: \
 
 ```{r}
 # HCA dendrogram, samples color coded by area:
@@ -191,6 +191,11 @@ plot(dend, main="HCA with sample areas")
 rect.dendrogram(dend, 4, border = "Black")
 legend("topright", legend = levels(area), fill = cols_a)
 
+```
+
+**HCA with soil samples, colored by type**: \
+
+```{r}
 # HCA dendrogram, samples color coded by type:
 dend2 <- 
     pxrf_final %>%                      # data
