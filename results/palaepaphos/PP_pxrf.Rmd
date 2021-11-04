@@ -17,6 +17,30 @@ Bad: Na, P, Ba (+ Ca, Al)
 
 The "bad" elements were excluded from the pXRF results from the get-go. After scaling and averaging the remaining values we ended up with two analysis datasets: **"pxrf_all"** that contains all the elements that have non-zero results, and **"pxrf_no_na"**, in which all the elements that have even one NA result are omitted.  
 
+```{r}
+MB_table <- matrix(c("LA54/4",  "30 cm x 18 cm", "Top row - weathered",
+                  "LA54/4",	"25 cm x 18 cm",	"Mid 4th row from the top",
+                  "LA54/4",	"35 cm x 18 cm (est.)", "B. 8th row from the top",
+                  "LA54/4",	"45 cm x 18 cm",	"9th row from the top",
+                  "LA54/4",	"46 cm x 16 cm",	"6th row from the top",
+                  "LA59/2",	"45 cm x 15 cm (est.)",	"Top row - weathered",
+                  "LA59/2",	"45 cm x 15 cm (est.)",	"3rd row from the top",
+                  "LA59/2",	"33 cm x 15 cm (est.)",	"5th row below stones",
+                  "LA59/2",	"44 cm x 13 cm",	"9th row of the top",
+                  "LA59/2",	"40 cm x 20 cm",	"B. below disturbance under the marl",
+                  "LA54/7",	"14 cm x 15 cm (est.)", "(no additional info)"), 
+                  ncol=3, byrow=TRUE)
+colnames(MB_table) <- c("Context", "Size", "Row")
+rownames(MB_table) <- c("PP-9", "PP-10", "PP-11", "PP-12", "PP-13", "PP-14", "PP-15", "PP-16", "PP-17", "PP-18", "PP-19")
+MB_table <- as.table(MB_table)
+
+library(knitr)
+kable(MB_table)
+```
+
+
+
+
 #### Data preparation
 
 ```{r}
