@@ -49,6 +49,7 @@ library(openxlsx);
 library(dplyr);
 library(ggfortify); # PCA autoplots
 library(FactoMineR); # Fast PCA graphs
+library(plot3D); # 3D plots
 library(dendextend); # Dendrograms
 
 # Read the raw data
@@ -184,6 +185,16 @@ autoplot(pca_2, data=pxrf_noCu_MB, colour='Area', shape = FALSE, label = TRUE,  
 
 PCA(pxrf_MB[3:12])
 PCA(pxrf_noCu_MB[3:11])
+
+#3D plot
+scores = as.data.frame(pca_2$x)
+scatter3D(scores$PC2, scores$PC3, scores$PC1, 
+          xlab = "PC2", ylab = "PC3", zlab="PC1",
+          phi = 0, bty = "g",  type = "h", 
+          ticktype = "detailed", pch = 19, cex = 1.2)
+text3D(scores$PC2, scores$PC3, scores$PC1, labels = rownames(scores),
+          add = TRUE, colkey = FALSE, cex = 0.7)
+
 
 ```
 
