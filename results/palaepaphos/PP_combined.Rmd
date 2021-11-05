@@ -9,7 +9,7 @@ output:
     
 ---
 
-Combined PCA and HCA: including ceochemistry and LOI data 
+Combined PCA and HCA: including geochemistry and LOI data 
 
 #### Data preparation
 
@@ -24,10 +24,10 @@ library(dendextend); # Dendrograms
 
 # Read the raw data
 pxrf <- read.xlsx("data/combo_PP.xlsx", sep=";")
-pxrf[4:13] <- scale(pxrf_scaled[4:13])
 
 # Transforming remaining NA values to zeros for analysis
 pxrf[is.na(pxrf)] <- 0
+pxrf[4:16] <- scale(pxrf[4:16])
 
 pxrf_MB <- pxrf[c(9:19), ]
 rownames(pxrf_MB) <- pxrf_MB$Sample
@@ -69,7 +69,7 @@ dend <-
     labels_colors(dend) <- col_area[order.dendrogram(dend)]
 
     plot(dend, main="HCA with sample areas")
-    rect.dendrogram(dend, 5, border = "Black", lty = 5)
+    rect.dendrogram(dend, 6, border = "Black", lty = 5)
     legend("topright", legend = levels(area), fill = cols_a)
 ```
 
