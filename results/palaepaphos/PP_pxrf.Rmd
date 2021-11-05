@@ -102,12 +102,69 @@ pxrf_all <- pxrf_scaled %>% select_if(all_na)
 ```
 
 **pxrf_averaged**: All averaged data including averaged errors (Uine's note: for later use)
+**pxrf_errors**: Averaged data including averaged errors, missing and dubious elements emitted
 
 ```{r}
-colnames(pxrf_averaged)
+pxrf_errors <- pxrf_averaged %>% select_if(all_na)
+pxrf_errors <- pxrf_errors %>% 
+        select(-Al2O3) %>% 
+        select(-'Al2O3;Err') %>%   
+        select(-CaO) %>% 
+        select(-'CaO;Err') %>% 
+        select(-SiO2) %>%
+        select(-'SiO2;Err') %>%
+        select(-Cl) %>%  
+        select(-'Cl;Err') %>% 
+        select(-K2O) %>% 
+        select(-'K2O;Err') %>% 
+        select(-Ni) %>% 
+        select(-'Ni;Err') %>%   
+        select(-P2O5) %>%  
+        select(-'P2O5;Err') %>%   
+        select(-S) %>% 
+        select(-'S;Err') %>%  
+        select(-V) %>% 
+        select(-'V;Err') %>%   
+        select(-As) %>% 
+        select(-'As;Err') %>%   
+        select(-Rh) %>% 
+        select(-'Rh;Err') %>%   
+        select(-Ag) %>%   
+          select(-'Cr;Err') %>% 
+          select(-'Co;Err') %>% 
+          select(-'Se;Err') %>% 
+          select(-Nb) %>% 
+          select(-'Nb;Err') %>% 
+          select(-'Mo;Err') %>% 
+          select(-'Pd;Err') %>% 
+          select(-'Cd;Err') %>% 
+          select(-'Sn;Err') %>% 
+          select(-'Sb;Err') %>% 
+          select(-'Ba;Err') %>% 
+          select(-'La;Err') %>% 
+          select(-'Ag;Err') %>% 
+          select(-'Ce;Err') %>% 
+          select(-'Hf;Err') %>% 
+          select(-'Ta;Err') %>% 
+          select(-'W;Err') %>% 
+          select(-'Pt;Err') %>% 
+          select(-'Au;Err') %>% 
+          select(-'Hg;Err') %>% 
+          select(-'Tl;Err') %>% 
+          select(-Pb) %>% 
+          select(-'Pb;Err') %>% 
+          select(-'Bi;Err') %>% 
+          select(-'Th;Err') %>% 
+          select(-'U;Err')
+
+pxrf_errors[3:22] <- (pxrf_errors[3:22] * 1000)
+pxrf_errors[3:22] <- round(pxrf_errors[3:22], digits = 1)
+
+kable(pxrf_errors[3:22])
+
 ```
 
-**pxrf_all**: All elements (the numbers below are the amount of NA values)
+**pxrf_all**: All "possible" elements (the numbers below are the amount of NA values)
 
 ```{r}
 colSums(is.na(pxrf_all))
@@ -129,7 +186,9 @@ pxrf_final <- pxrf_all %>%
         select(-V) %>% 
         select(-As) %>% 
         select(-Rh) %>% 
-        select(-Ag)
+        select(-Ag) %>% 
+        select(-MgO) %>% 
+        select(-Cu)
 
 # Transforming remaining NA values to zeros for analysis
 pxrf_final[is.na(pxrf_final)] <- 0
@@ -142,7 +201,6 @@ colnames(pxrf_final)
 
 ```{r}
 pxrf_MB <- pxrf_final[c(1:11), ]
-rownames(pxrf_MB)
 ```
 
 #### pXRF: K means cluster analysis
@@ -152,7 +210,7 @@ Only mudbrick samples
 ```{r}
 # PC autoplot with K-means clusters
 set.seed(1)
-autoplot(kmeans(pxrf_MB[3:12], 3), data = pxrf_MB, label = TRUE, label.size = 3)
+autoplot(kmeans(pxrf_MB[3:10], 3), data = pxrf_MB, label = TRUE, label.size = 3)
 
 ```
 
@@ -162,32 +220,21 @@ autoplot(kmeans(pxrf_MB[3:12], 3), data = pxrf_MB, label = TRUE, label.size = 3)
 
 ```{r}
 # Elements
-colnames(pxrf_MB[3:12])
+colnames(pxrf_MB[3:10])
 
 # PCA analysis
-pca_1 <- prcomp(pxrf_MB[3:12])
+pca_1 <- prcomp(pxrf_MB[3:10])
 summary(pca_1)
-
-# NO COPPER: Elements
-pxrf_noCu_MB <- pxrf_MB[-7]
-colnames(pxrf_noCu_MB[3:11])
-
-# NO COPPER: PCA analysis
-pca_2 <- prcomp(pxrf_noCu_MB[3:11])
-summary(pca_2)
 
 # PCA plots
 biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
-biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements (NO COPPER)")
 
 autoplot(pca_1, data=pxrf_MB, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
-autoplot(pca_2, data=pxrf_noCu_MB, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area (NO COPPER)")
 
-PCA(pxrf_MB[3:12])
-PCA(pxrf_noCu_MB[3:11])
+PCA(pxrf_MB[3:10])
 
 #3D plot
-scores = as.data.frame(pca_2$x)
+scores = as.data.frame(pca_1$x)
 scatter3D(scores$PC2, scores$PC3, scores$PC1, 
           xlab = "PC2", ylab = "PC3", zlab="PC1",
           phi = 0, bty = "g",  type = "h", 
@@ -202,32 +249,20 @@ text3D(scores$PC2, scores$PC3, scores$PC1, labels = rownames(scores),
 
 ```{r}
 # Elements
-colnames(pxrf_final[3:12])
+colnames(pxrf_final[3:10])
 
 # PCA analysis
-pca_3 <- prcomp(pxrf_final[3:12])
-summary(pca_2)
-
-# NO COPPER: Elements
-pxrf_noCu <- pxrf_final[-7]
-colnames(pxrf_noCu[3:11])
-
-# NO COPPER: PCA analysis
-pca_4 <- prcomp(pxrf_noCu[3:11])
-summary(pca_2)
+pca_3 <- prcomp(pxrf_final[3:10])
+summary(pca_3)
 
 # PCA plots
 biplot(pca_3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
-biplot(pca_4, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements (NO COPPER)")
 
 autoplot(pca_3, data=pxrf_final, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
-autoplot(pca_4, data=pxrf_noCu, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area (NO COPPER)")
 
 autoplot(pca_3, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
-autoplot(pca_4, data=pxrf_noCu, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type (NO COPPER)")
 
-PCA(pxrf_final[3:12])
-PCA(pxrf_noCu[3:11])
+PCA(pxrf_final[3:10])
 
 ```
 
@@ -254,24 +289,6 @@ dend <-
     rect.dendrogram(dend, 4, border = "Black", lty = 5)
     legend("topright", legend = levels(area), fill = cols_a)
 
-# NO COPPER: HCA dendrogram, samples color coded by area:
-dend2 <- 
-    pxrf_noCu_MB %>%                      # data
-    dist %>%                            # calculate a distance matrix
-    hclust(method = "ward.D2") %>%      # hierarchical clustering 
-    as.dendrogram %>%                   # turn the object into a dendrogram
-    highlight_branches_col
-
-    area <- as.factor(pxrf_noCu_MB[, 1])
-    n_area <- length(unique(area))
-    cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
-    col_area <- cols_a[area]
-    labels_colors(dend2) <- col_area[order.dendrogram(dend2)]
-
-    plot(dend2, main="HCA with sample areas (NO COPPER)")
-    rect.dendrogram(dend2, 4, border = "Black", lty = 5)
-    legend("topright", legend = levels(area), fill = cols_a)
-
 ```
 
 **HCA with soil samples, colored by type**: \
@@ -294,24 +311,6 @@ dend3 <-
     plot(dend3, main="HCA with all samples by type")
     rect.dendrogram(dend3, 6, border = "Black", lty = 5)
     legend("topright", legend = levels(type), fill = cols_t)
-
-# NO COPPER: HCA dendrogram, samples color coded by area:
-dend4 <- 
-    pxrf_noCu %>%                      # data
-    dist %>%                            # calculate a distance matrix
-    hclust(method = "ward.D2") %>%      # hierarchical clustering 
-    as.dendrogram %>%                   # turn the object into a dendrogram
-    highlight_branches_col
-
-    area <- as.factor(pxrf_noCu[, 1])
-    n_area <- length(unique(area))
-    cols_a <- colorspace::rainbow_hcl(n_area, c = 70, l  = 50)
-    col_area <- cols_a[area]
-    labels_colors(dend4) <- col_area[order.dendrogram(dend4)]
-
-    plot(dend4, main="HCA all samples with areas (NO COPPER)")
-    rect.dendrogram(dend4, 6, border = "Black", lty = 5)
-    legend("topright", legend = levels(area), fill = cols_a)
 
 ```
 
