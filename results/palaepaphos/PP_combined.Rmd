@@ -1,0 +1,82 @@
+---
+author: "Uine Kailamäki"
+output:
+  html_document:
+    theme: cosmo
+    fig_caption: true
+    fig_width: 12
+    fig_height: 8 
+    
+---
+
+Combined PCA and HCA: including ceochemistry and LOI data  
+
+```{r}
+MB_table <- matrix(c("LA54/4",  "30 cm x 18 cm", "Top row - weathered",
+                  "LA54/4",	"25 cm x 18 cm",	"Mid 4th row from the top",
+                  "LA54/4",	"35 cm x 18 cm (est.)", "B. 8th row from the top",
+                  "LA54/4",	"45 cm x 18 cm",	"9th row from the top",
+                  "LA54/4",	"46 cm x 16 cm",	"6th row from the top",
+                  "LA59/2",	"45 cm x 15 cm (est.)",	"Top row - weathered",
+                  "LA59/2",	"45 cm x 15 cm (est.)",	"3rd row from the top",
+                  "LA59/2",	"33 cm x 15 cm (est.)",	"5th row below stones",
+                  "LA59/2",	"44 cm x 13 cm",	"9th row of the top",
+                  "LA59/2",	"40 cm x 20 cm",	"B. below disturbance under the marl",
+                  "LA54/7",	"14 cm x 15 cm (est.)", "(no additional info)"), 
+                  ncol=3, byrow=TRUE)
+colnames(MB_table) <- c("Context", "Size", "Row")
+rownames(MB_table) <- c("PP-9", "PP-10", "PP-11", "PP-12", "PP-13", "PP-14", "PP-15", "PP-16", "PP-17", "PP-18", "PP-19")
+MB_table <- as.table(MB_table)
+
+library(knitr)
+kable(MB_table)
+```
+
+#### Data preparation
+
+```{r}
+# Libraries
+library(openxlsx); 
+library(dplyr);
+library(ggfortify); # PCA autoplots
+library(FactoMineR); # Fast PCA graphs
+library(plot3D); # 3D plots
+library(dendextend); # Dendrograms
+
+# Read the raw data
+pxrf <- read.xlsx("data/combo_PP.xlsx", sep=";")
+pxrf[4:13] <- scale(pxrf_scaled[4:13])
+
+# Transforming remaining NA values to zeros for analysis
+pxrf[is.na(pxrf)] <- 0
+
+pxrf_MBc <- pxrf[c(9:19), ]
+
+```
+
+PCA Combided ceochemistry + LOI
+
+```{r}
+# PCA analysis
+pca_1 <- prcomp(pxrf_MBc[4:13])
+summary(pca_1)
+
+# PCA plots
+biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
+
+autoplot(pca_1, data=pxrf_MBc, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+
+PCA(pxrf_MBc[4:13])
+
+#3D plot
+scores = as.data.frame(pca_1$x)
+scatter3D(scores$PC2, scores$PC3, scores$PC1, 
+          xlab = "PC2 (21,3 %)", ylab = "PC3 (8,4 %)", zlab="PC1 (60,8 %)",
+          phi = 0, bty = "g",  type = "h", 
+          ticktype = "detailed", pch = 19, cex = 1.2)
+text3D(scores$PC2, scores$PC3, scores$PC1, labels = rownames(scores),
+          add = TRUE, colkey = FALSE, cex = 0.7)
+```
+
+
+```{r}

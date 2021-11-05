@@ -24,5 +24,6 @@ Intro about the site
 ### Colorimetry
 ```{r child = "PP_color.Rmd"}
 ```
-
-
+### Combined results
+```{r child = "PP_combined.Rmd"}
+```

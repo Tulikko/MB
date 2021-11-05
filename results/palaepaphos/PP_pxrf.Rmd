@@ -205,12 +205,12 @@ pxrf_MB <- pxrf_final[c(1:11), ]
 
 #### pXRF: K means cluster analysis
 
-Only mudbrick samples
+Only mudbrick samples, K-means cluster analysis with 5 possible clusters
 
 ```{r}
 # PC autoplot with K-means clusters
 set.seed(1)
-autoplot(kmeans(pxrf_MB[3:10], 3), data = pxrf_MB, label = TRUE, label.size = 3)
+autoplot(kmeans(pxrf_MB[3:10], 5), data = pxrf_MB, label = TRUE, label.size = 3)
 
 ```
 
@@ -236,7 +236,7 @@ PCA(pxrf_MB[3:10])
 #3D plot
 scores = as.data.frame(pca_1$x)
 scatter3D(scores$PC2, scores$PC3, scores$PC1, 
-          xlab = "PC2", ylab = "PC3", zlab="PC1",
+          xlab = "PC2 (23,6 %)", ylab = "PC3 (5,5 %)", zlab="PC1 (64,2 %)",
           phi = 0, bty = "g",  type = "h", 
           ticktype = "detailed", pch = 19, cex = 1.2)
 text3D(scores$PC2, scores$PC3, scores$PC1, labels = rownames(scores),
@@ -286,7 +286,7 @@ dend <-
     labels_colors(dend) <- col_area[order.dendrogram(dend)]
 
     plot(dend, main="HCA with sample areas")
-    rect.dendrogram(dend, 4, border = "Black", lty = 5)
+    rect.dendrogram(dend, 5, border = "Black", lty = 5)
     legend("topright", legend = levels(area), fill = cols_a)
 
 ```
@@ -309,7 +309,7 @@ dend3 <-
     labels_colors(dend3) <- col_type[order.dendrogram(dend3)]
 
     plot(dend3, main="HCA with all samples by type")
-    rect.dendrogram(dend3, 6, border = "Black", lty = 5)
+    rect.dendrogram(dend3, 7, border = "Black", lty = 5)
     legend("topright", legend = levels(type), fill = cols_t)
 
 ```
