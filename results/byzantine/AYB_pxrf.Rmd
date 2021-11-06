@@ -102,7 +102,9 @@ pxrf_final <- pxrf_all %>%
         select(-P2O5) %>%  
         select(-S) %>% 
         select(-As) %>% 
-        select(-Pb) 
+        select(-Pb) %>% 
+        select(-MgO) %>% 
+        select(-Cu)
 
 # Transforming remaining NA values to zeros for analysis
 pxrf_final[is.na(pxrf_final)] <- 0
@@ -116,7 +118,7 @@ colnames(pxrf_final)
 ```{r}
 # PC autoplot with K-means clusters
 set.seed(1)
-autoplot(kmeans(pxrf_final[3:12], 4), data = pxrf_final, label = TRUE, label.size = 3)
+autoplot(kmeans(pxrf_final[3:10], 4), data = pxrf_final, label = TRUE, label.size = 3)
 
 ```
 
@@ -126,29 +128,18 @@ autoplot(kmeans(pxrf_final[3:12], 4), data = pxrf_final, label = TRUE, label.siz
 
 ```{r}
 # Elements
-colnames(pxrf_final[3:12])
+colnames(pxrf_final[3:10])
 
 # PCA analysis
-pca_1 <- prcomp(pxrf_final[3:12])
+pca_1 <- prcomp(pxrf_final[3:10])
 summary(pca_1)
-
-# NO COPPER: Elements
-pxrf_noCu <- pxrf_final[-7]
-colnames(pxrf_noCu[3:11])
-
-# NO COPPER: PCA analysis
-pca_2 <- prcomp(pxrf_noCu[3:11])
-summary(pca_2)
 
 # PCA plots
 biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Ashdod-Yam Byzantine elements")
-biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Ashdod-Yam Byzantine elements (NO COPPER)")
 
 autoplot(pca_1, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam Byzantine grouped by sample type")
-autoplot(pca_2, data=pxrf_noCu, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Ashdod-Yam Byzantine grouped by sample type (NO COPPER)")
 
-PCA(pxrf_final[3:12])
-PCA(pxrf_noCu[3:11])
+PCA(pxrf_final[3:10])
 
 ```
 
@@ -173,23 +164,6 @@ dend <-
     rect.dendrogram(dend, 5, border = "Black", lty = 5)
     legend("topright", legend = levels(type), fill = cols_t)
 
-# NO COPPER: HCA dendrogram, samples color coded by area:
-dend2 <- 
-    pxrf_noCu %>%                      # data
-    dist %>%                            # calculate a distance matrix
-    hclust(method = "ward.D2") %>%      # hierarchical clustering 
-    as.dendrogram %>%                   # turn the object into a dendrogram
-    highlight_branches_col
-
-    type <- as.factor(pxrf_noCu[, 2])
-    n_type <- length(unique(type))
-    cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
-    col_type <- cols_t[type]
-    labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
-
-    plot(dend2, main="HCA with sample types (NO COPPER)")
-    rect.dendrogram(dend2, 5, border = "Black", lty = 5)
-    legend("topright", legend = levels(type), fill = cols_t)
 
 ```
 
