@@ -38,9 +38,6 @@ library(knitr)
 kable(MB_table)
 ```
 
-
-
-
 #### Data preparation
 
 ```{r}
@@ -72,6 +69,9 @@ pxrf <- pxrf %>%
   
 # Coercing "< LOD" -results to NA:s  
 pxrf[4:93] <- pxrf[4:93] %>% mutate_if(is.character,as.numeric)
+
+# Transforming NA values to zeros
+pxrf[is.na(pxrf)] <- 0
 
 # Averaging results by "Sample", "Area" and "Type" columns
 pxrf_averaged <- aggregate(pxrf, by = list(pxrf$Sample, pxrf$Area, pxrf$Type), FUN = mean)
@@ -167,7 +167,7 @@ kable(pxrf_errors[3:22])
 **pxrf_all**: All "possible" elements (the numbers below are the amount of NA values)
 
 ```{r}
-colSums(is.na(pxrf_all))
+colSums(is.na(pxrf_all[-c(1:2)]))
 ```
 
 **pxrf_final**: Final analysis data set with only the selected elements
@@ -194,7 +194,7 @@ pxrf_final <- pxrf_all %>%
 pxrf_final[is.na(pxrf_final)] <- 0
 
 # Final analysis data set        
-colnames(pxrf_final)
+colnames(pxrf_all[-c(1:2)])
 ```
 
 **pxrf_MB**: Final analysis data set for MUDBRICK samples only (= no soil)
