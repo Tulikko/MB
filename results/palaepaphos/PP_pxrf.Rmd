@@ -183,18 +183,23 @@ pxrf_final <- pxrf_all %>%
         select(-Ni) %>% 
         select(-P2O5) %>%  
         select(-S) %>% 
-        select(-V) %>% 
         select(-As) %>% 
         select(-Rh) %>% 
         select(-Ag) %>% 
         select(-MgO) %>% 
-        select(-Cu)
+        select(-Cu) %>% 
+        select(-Cr) %>% 
+        select(-Nb) %>% 
+        select(-Mo) %>% 
+        select(-Ba) %>% 
+        select(-Ta) %>% 
+        select(-Pb)
 
 # Transforming remaining NA values to zeros for analysis
 pxrf_final[is.na(pxrf_final)] <- 0
 
 # Final analysis data set        
-colnames(pxrf_all[-c(1:2)])
+colnames(pxrf_final[-c(1:2)])
 ```
 
 **pxrf_MB**: Final analysis data set for MUDBRICK samples only (= no soil)
@@ -220,7 +225,7 @@ autoplot(kmeans(pxrf_MB[3:10], 5), data = pxrf_MB, label = TRUE, label.size = 3)
 
 ```{r}
 # Elements
-colnames(pxrf_MB[3:10])
+colnames(pxrf_MB[-c(1:2)])
 
 # PCA analysis
 pca_1 <- prcomp(pxrf_MB[3:10])

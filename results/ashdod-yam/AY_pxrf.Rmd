@@ -98,12 +98,21 @@ pxrf_final <- pxrf_all %>%
         select(-Ni) %>% 
         select(-P2O5) %>%  
         select(-S) %>% 
-        select(-V) %>% 
         select(-As) %>% 
         select(-Nb) %>% 
         select(-Ba) %>% 
         select(-MgO) %>% 
-        select(-Cu)
+        select(-Cu) %>% 
+        select(-Cr) %>% 
+        select(-Mo) %>% 
+        select(-Rh) %>% 
+        select(-Ag) %>% 
+        select(-Sn) %>% 
+        select(-La) %>% 
+        select(-Ta) %>% 
+        select(-Pb) %>% 
+        select(-Bi)
+
 
 # Transforming remaining NA values to zeros for analysis
 pxrf_final[is.na(pxrf_final)] <- 0
@@ -127,7 +136,7 @@ autoplot(kmeans(pxrf_final[3:10], 7), data = pxrf_final, label = TRUE, label.siz
 
 ```{r}
 # Elements
-colnames(pxrf_final[3:10])
+colnames(pxrf_final[-c(1:2)])
 
 # PCA analysis
 pca_1 <- prcomp(pxrf_final[3:10])
