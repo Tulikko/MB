@@ -154,12 +154,23 @@ summary(pca_1)
 
 # PCA plots
 biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Israel elements")
-
 autoplot(pca_1, data=pxrf_final, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Israel grouped by area")
-
 autoplot(pca_1, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Israel grouped by sample type")
-
 PCA(pxrf_final[3:10])
+
+# Only Tell Iztabba
+
+pxrf_Iztabba <- pxrf_final[-c(1:10), ]
+rownames(pxrf_Iztabba)
+
+# PCA analysis
+pca_2 <- prcomp(pxrf_Iztabba[3:9])
+summary(pca_2)
+
+# PCA plots
+biplot(pca_2, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Tell Iztabba elements")
+autoplot(pca_2, data=pxrf_Iztabba, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Tell Iztabba  grouped by area")
+PCA(pxrf_Iztabba[3:9])
 
 ```
 
