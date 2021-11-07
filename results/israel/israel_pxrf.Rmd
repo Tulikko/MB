@@ -79,10 +79,16 @@ pxrf_all <- pxrf_scaled %>% select_if(all_na)
 
 ```
 
-**pxrf_all**: All possible elements (the numbers below are the amount of NA values)
+**pxrf_all**: All possible elements
+**pxrf_errors**: Means of  available values and error values for a quick glimpse
 
 ```{r}
-colSums(is.na(pxrf_all[-c(1:2)]))
+colnames(is.na(pxrf_all[-c(1:2)]))
+
+pxrf_errors <- pxrf_averaged %>% select_if(all_na)
+pxrf_errors <- (pxrf_errors[-c(1:2)] * 1000)
+pxrf_errors <- round(pxrf_errors, digits = 1)
+colMeans(pxrf_errors)
 ```
 
 **pxrf_final**: Final analysis data set with only the selected elements
