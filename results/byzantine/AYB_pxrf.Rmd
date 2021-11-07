@@ -46,7 +46,7 @@ pxrf <- pxrf %>%
         select(-'Cal;Check')
   
 # Coercing "< LOD" -results to NA:s  
-pxrf[4:93] <- pxrf[4:93] %>% mutate_if(is.character,as.numeric)
+pxrf[-c(1:3)] <- pxrf[-c(1:3)] %>% mutate_if(is.character,as.numeric)
 
 # Transforming NA values to zeros
 pxrf[is.na(pxrf)] <- 0
@@ -60,7 +60,7 @@ pxrf_averaged <- pxrf_averaged %>% select(-Area)
 pxrf_averaged <- pxrf_averaged %>% select(-Type)
 
 # Assigning sample names as new row names 
-rownames(pxrf_averaged) <- pxrf_averaged$Group.1
+rownames(pxrf_averaged) <- pxrf_averaged$'Group.1'
 pxrf_averaged <- pxrf_averaged %>% select(-Group.1)
 
 # Renaming the other two newly created groups back to "Type" and "Area"
@@ -71,18 +71,12 @@ names(pxrf_averaged)[names(pxrf_averaged) == "Group.3"] <- "Type"
 pxrf_scaled <- pxrf_averaged %>% select(-ends_with("Err"))
 
 # Scaling the data with standard z-score method
-pxrf_scaled[3:47] <- scale(pxrf_scaled[3:47])
+pxrf_scaled[-c(1:2)] <- scale(pxrf_scaled[-c(1:2)])
 
 # Removing columns that only contain NA values
 all_na <- function(x) any(!is.na(x))
 pxrf_all <- pxrf_scaled %>% select_if(all_na)
 
-```
-
-**pxrf_averaged**: All averaged data including averaged errors (Uine's note: for later use)
-
-```{r}
-colnames(pxrf_averaged)
 ```
 
 **pxrf_all**: All possible elements
