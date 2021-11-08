@@ -44,9 +44,11 @@ kable(MB_table)
 # Libraries
 library(openxlsx); 
 library(dplyr);
-library(ggfortify); # PCA autoplots
-library(FactoMineR); # Fast PCA graphs
+library(ggfortify); # Pretty PCA plots
+library(FactoMineR); # Fast automatic PCA graphs
+library(factoextra) # Eigenvalues for PCA
 library(dendextend); # Dendrograms
+library(plot3D); # 3D plot for PCA results
 
 # Read the raw data
 pxrf <- read.xlsx("data/pxrf_PP.xlsx", sep=";")
@@ -168,27 +170,36 @@ autoplot(kmeans(pxrf_MB[3:10], 4), data = pxrf_MB, label = TRUE, label.size = 3)
 **PCA with only mudbrick samples**: 
 
 ```{r}
-# Elements
-colnames(pxrf_MB[-c(1:2)])
+# PCA
+PCA_01 <- PCA(pxrf_MB[3:10], graph = FALSE)
 
-# PCA analysis
-pca_1 <- prcomp(pxrf_MB[3:10])
-summary(pca_1)
+# Eigenvalues
+get_eigenvalue(PCA_01)
+fviz_eig(PCA_01)
 
-# PCA plots
-biplot(pca_1, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
+# Contributions of variables to PC1 and PC2
+fviz_contrib(PCA_01, choice = "var", axes = 1, top = 10)
+fviz_contrib(PCA_01, choice = "var", axes = 2, top = 10)
 
-autoplot(pca_1, data=pxrf_MB, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+# Graph of variables with contribution indication
+fviz_pca_var(PCA_01, col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+             )
 
-PCA(pxrf_MB[3:10])
+# Graph of individuals with contribution indication
+fviz_pca_ind(PCA_01,
+             col.ind = pxrf_MB$Area, # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+             legend.title = "Context")
 
 #3D plot
-scores = as.data.frame(pca_1$x)
-scatter3D(scores$PC2, scores$PC3, scores$PC1, 
-          xlab = "PC2 (23,6 %)", ylab = "PC3 (5,5 %)", zlab="PC1 (64,2 %)",
+scores = as.data.frame(PCA_01$ind)
+scatter3D(scores$'coord.Dim.2', scores$'coord.Dim.3', scores$'coord.Dim.1', 
+          xlab = "PC2 (16,29 %)", ylab = "PC3 (5,95 %)", zlab="PC1 (71,83 %)",
           phi = 0, bty = "g",  type = "h", 
           ticktype = "detailed", pch = 19, cex = 1.2)
-text3D(scores$PC2, scores$PC3, scores$PC1, labels = rownames(scores),
+text3D(scores$'coord.Dim.2', scores$'coord.Dim.3', scores$'coord.Dim.1', labels = rownames(scores),
           add = TRUE, colkey = FALSE, cex = 0.7)
 
 
@@ -197,21 +208,41 @@ text3D(scores$PC2, scores$PC3, scores$PC1, labels = rownames(scores),
 **PCA with soil samples**: \
 
 ```{r}
-# Elements
-colnames(pxrf_final[3:10])
+# PCA
+PCA_02 <- PCA(pxrf_final[3:10], graph = FALSE)
 
-# PCA analysis
-pca_3 <- prcomp(pxrf_final[3:10])
-summary(pca_3)
+# Eigenvalues
+get_eigenvalue(PCA_02)
+fviz_eig(PCA_02)
 
-# PCA plots
-biplot(pca_3, choices = 1:2, cex = c(1, 1.2), col = c("grey80", "deeppink2"), main = "PCA Palaepaphos elements")
+# Contributions of variables to PC1 and PC2
+fviz_contrib(PCA_02, choice = "var", axes = 1, top = 10)
+fviz_contrib(PCA_02, choice = "var", axes = 2, top = 10)
 
-autoplot(pca_3, data=pxrf_final, colour='Area', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by area")
+# Graph of variables with contribution indication
+fviz_pca_var(PCA_02, col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+             )
 
-autoplot(pca_3, data=pxrf_final, colour='Type', shape = FALSE, label = TRUE,  main = "PCA Palaepaphos grouped by sample type")
+# Graph of individuals
+fviz_pca_ind(PCA_02,
+             col.ind = pxrf_final$Area,
+             legend.title = "Context")
 
-PCA(pxrf_final[3:10])
+# Graph of individuals
+fviz_pca_ind(PCA_02,
+             col.ind = pxrf_final$Type, # color by groups
+             legend.title = "Type")
+
+#3D plot
+scores = as.data.frame(PCA_02$ind)
+scatter3D(scores$'coord.Dim.2', scores$'coord.Dim.3', scores$'coord.Dim.1', 
+          xlab = "PC2 (19,44 %)", ylab = "PC3 (16,42 %)", zlab="PC1 (55,68 %)",
+          phi = 0, bty = "g",  type = "h", 
+          ticktype = "detailed", pch = 19, cex = 1.2)
+text3D(scores$'coord.Dim.2', scores$'coord.Dim.3', scores$'coord.Dim.1', labels = rownames(scores),
+          add = TRUE, colkey = FALSE, cex = 0.7)
 
 ```
 
@@ -237,6 +268,30 @@ dend <-
     plot(dend, main="HCA with sample areas")
     rect.dendrogram(dend, 5, border = "Black", lty = 5)
     legend("topright", legend = levels(area), fill = cols_a)
+    
+
+# PCA biplot with HCA groups
+    
+# Compute PCA with ncp = 3
+res.pca <- PCA(pxrf_MB[3:10], ncp = 3, graph = FALSE)
+# Compute hierarchical clustering on principal components
+res.hcpc <- HCPC(res.pca, graph = FALSE)
+    
+fviz_dend(res.hcpc, 
+          cex = 0.7,                     # Label size
+          palette = "jco",               # Color palette see ?ggpubr::ggpar
+          rect = TRUE, rect_fill = TRUE, # Add rectangle around groups
+          rect_border = "jco",           # Rectangle color
+          labels_track_height = 0.8      # Augment the room for labels
+          )
+      
+  fviz_cluster(res.hcpc,
+             repel = TRUE,            # Avoid label overlapping
+             show.clust.cent = TRUE, # Show cluster centers
+             palette = "jco",         # Color palette see ?ggpubr::ggpar
+             ggtheme = theme_minimal(),
+             main = "Factor map"
+             )
 
 ```
 
@@ -260,6 +315,30 @@ dend3 <-
     plot(dend3, main="HCA with all samples by type")
     rect.dendrogram(dend3, 7, border = "Black", lty = 5)
     legend("topright", legend = levels(type), fill = cols_t)
+    
+    
+    # PCA biplot with HCA groups
+    
+# Compute PCA with ncp = 3
+res.pca <- PCA(pxrf_final[3:10], ncp = 7, graph = FALSE)
+# Compute hierarchical clustering on principal components
+res.hcpc <- HCPC(res.pca, graph = FALSE)
+    
+fviz_dend(res.hcpc, 
+          cex = 0.7,                     # Label size
+          palette = "jco",               # Color palette see ?ggpubr::ggpar
+          rect = TRUE, rect_fill = TRUE, # Add rectangle around groups
+          rect_border = "jco",           # Rectangle color
+          labels_track_height = 0.8      # Augment the room for labels
+          )
+      
+  fviz_cluster(res.hcpc,
+             repel = TRUE,            # Avoid label overlapping
+             show.clust.cent = TRUE, # Show cluster centers
+             palette = "jco",         # Color palette see ?ggpubr::ggpar
+             ggtheme = theme_minimal(),
+             main = "Factor map"
+             )
 
 ```
 
