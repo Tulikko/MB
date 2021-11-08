@@ -153,12 +153,12 @@ ggplot(loi,
            y = "Carbonate LOI (%)") +
       theme(axis.title = element_text())
 
-# Color by context biplot: TGA
+# Color by type biplot: TGA
 ggplot(tga, 
-      aes(c550, c950, label = rownames(tga), colour = factor(context))) +
-      geom_point(size=2, aes(shape = factor(type))) +
+      aes(c550, c950, label = rownames(tga), colour = factor(type))) +
+      geom_point(size=2, aes(shape = factor(context))) +
       geom_text_repel(size=3) + 
-      labs(title = "TGA LOI, soil included - color by context", 
+      labs(title = "TGA LOI, soil included - color by type", 
            color = "Context",
            x = "Organic LOI (%)", 
            y = "Carbonate LOI (%)") +

@@ -100,73 +100,18 @@ pxrf_all <- pxrf_scaled %>% select_if(all_na)
 
 ```
 
-**pxrf_averaged**: All averaged data including averaged errors (Uine's note: for later use)
-**pxrf_errors**: Averaged data including averaged errors, missing and dubious elements emitted
+**pxrf_all**: All possible elements
+**pxrf_errors**: Means of  available values and error values for a quick glimpse
 
 ```{r}
+colnames(is.na(pxrf_all[-c(1:2)]))
+
+# pxrf_averaged[pxrf_averaged == "0"] <- NA
 pxrf_errors <- pxrf_averaged %>% select_if(all_na)
-pxrf_errors <- pxrf_errors %>% 
-        select(-Al2O3) %>% 
-        select(-'Al2O3;Err') %>%   
-        select(-CaO) %>% 
-        select(-'CaO;Err') %>% 
-        select(-SiO2) %>%
-        select(-'SiO2;Err') %>%
-        select(-Cl) %>%  
-        select(-'Cl;Err') %>% 
-        select(-K2O) %>% 
-        select(-'K2O;Err') %>% 
-        select(-Ni) %>% 
-        select(-'Ni;Err') %>%   
-        select(-P2O5) %>%  
-        select(-'P2O5;Err') %>%   
-        select(-S) %>% 
-        select(-'S;Err') %>%  
-        select(-V) %>% 
-        select(-'V;Err') %>%   
-        select(-As) %>% 
-        select(-'As;Err') %>%   
-        select(-Rh) %>% 
-        select(-'Rh;Err') %>%   
-        select(-Ag) %>%   
-          select(-'Cr;Err') %>% 
-          select(-'Co;Err') %>% 
-          select(-'Se;Err') %>% 
-          select(-Nb) %>% 
-          select(-'Nb;Err') %>% 
-          select(-'Mo;Err') %>% 
-          select(-'Pd;Err') %>% 
-          select(-'Cd;Err') %>% 
-          select(-'Sn;Err') %>% 
-          select(-'Sb;Err') %>% 
-          select(-'Ba;Err') %>% 
-          select(-'La;Err') %>% 
-          select(-'Ag;Err') %>% 
-          select(-'Ce;Err') %>% 
-          select(-'Hf;Err') %>% 
-          select(-'Ta;Err') %>% 
-          select(-'W;Err') %>% 
-          select(-'Pt;Err') %>% 
-          select(-'Au;Err') %>% 
-          select(-'Hg;Err') %>% 
-          select(-'Tl;Err') %>% 
-          select(-Pb) %>% 
-          select(-'Pb;Err') %>% 
-          select(-'Bi;Err') %>% 
-          select(-'Th;Err') %>% 
-          select(-'U;Err')
-
-pxrf_errors[3:22] <- (pxrf_errors[3:22] * 1000)
-pxrf_errors[3:22] <- round(pxrf_errors[3:22], digits = 1)
-
-kable(pxrf_errors[3:22])
-
-```
-
-**pxrf_all**: All "possible" elements (the numbers below are the amount of NA values)
-
-```{r}
-colSums(is.na(pxrf_all[-c(1:2)]))
+pxrf_errors <- colMeans(pxrf_errors[-c(1:2)])
+pxrf_errors <- (pxrf_errors * 1000)
+pxrf_errors <- round(pxrf_errors, digits = 2)
+pxrf_errors
 ```
 
 **pxrf_final**: Final analysis data set with only the selected elements
@@ -214,7 +159,7 @@ Only mudbrick samples, K-means cluster analysis with 5 possible clusters
 ```{r}
 # PC autoplot with K-means clusters
 set.seed(1)
-autoplot(kmeans(pxrf_MB[3:10], 5), data = pxrf_MB, label = TRUE, label.size = 3)
+autoplot(kmeans(pxrf_MB[3:10], 4), data = pxrf_MB, label = TRUE, label.size = 3)
 
 ```
 

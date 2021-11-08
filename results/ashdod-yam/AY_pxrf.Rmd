@@ -133,7 +133,7 @@ colnames(pxrf_final[-c(1:2)])
 ```{r}
 # PC autoplot with K-means clusters
 set.seed(1)
-autoplot(kmeans(pxrf_final[3:10], 7), data = pxrf_final, label = TRUE, label.size = 3)
+autoplot(kmeans(pxrf_final[3:10], 4), data = pxrf_final, label = TRUE, label.size = 3)
 
 ```
 
