@@ -47,6 +47,10 @@ normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-
 # Apply function "normalize" to clay, silt and sand columns
 grain_01 <- as.data.frame(apply(grain[5:7], 2, normalize))
 
+library(knitr)
+grain_simple <- round(grain[5:7], digits = 2)
+kable(grain_simple)
+
 ```
 
 #### Ternary plots
@@ -64,11 +68,27 @@ ggtern(data=MB_grain, aes(x=Clay, y=Sand, z=Silt, color=MB_context$Context)) +
   geom_point(size=0) +
   geom_text(aes(label=rownames(MB_grain)), size=3)
 
-ggtern(data=grain_01, aes(x=Clay, y=Sand, z=Silt, color=grain$Context)) +
-  labs(title="Clay silt sand") +
+#Scaled
+ggtern(data=grain_01, aes(x=Clay, y=Sand, z=Silt, color=grain$Type)) +
+  labs(title="Clay silt sand",
+       color="Type",
+       shape="Context") +
   theme_nomask() +
   geom_mask() +
-  geom_point(size=2) 
+  geom_point(size=2, aes(shape = factor(grain$Context))) + 
+  geom_text(aes(label=rownames(grain_01)), size=3, hjust=1.2, vjust=1) + 
+  theme_showarrows()
+
+# Unscaled
+ggtern(data=grain[5:7], aes(x=Clay, y=Sand, z=Silt, color=grain$Type)) +
+  labs(title="Clay silt sand unscaled",
+       color="Type",
+       shape="Context") +
+  theme_nomask() +
+  geom_mask() +
+  geom_point(size=2, aes(shape = factor(grain$Context))) + 
+  geom_text(aes(label=rownames(grain_01)), size=3, hjust=1.2, vjust=1) + 
+  theme_showarrows()
 
 ```
 
