@@ -218,6 +218,7 @@ fviz_eig(PCA_02)
 # Contributions of variables to PC1 and PC2
 fviz_contrib(PCA_02, choice = "var", axes = 1, top = 10)
 fviz_contrib(PCA_02, choice = "var", axes = 2, top = 10)
+fviz_contrib(PCA_02, choice = "var", axes = 3, top = 10)
 
 # Graph of variables with contribution indication
 fviz_pca_var(PCA_02, col.var = "contrib",
@@ -266,7 +267,7 @@ dend <-
     labels_colors(dend) <- col_area[order.dendrogram(dend)]
 
     plot(dend, main="HCA with sample areas")
-    rect.dendrogram(dend, 5, border = "Black", lty = 5)
+    rect.dendrogram(dend, 6, border = "Grey", lty = 5)
     legend("topright", legend = levels(area), fill = cols_a)
     
 
@@ -313,14 +314,14 @@ dend3 <-
     labels_colors(dend3) <- col_type[order.dendrogram(dend3)]
 
     plot(dend3, main="HCA with all samples by type")
-    rect.dendrogram(dend3, 7, border = "Black", lty = 5)
+    rect.dendrogram(dend3, 2, border = "Grey", lty = 5)
     legend("topright", legend = levels(type), fill = cols_t)
     
     
     # PCA biplot with HCA groups
     
 # Compute PCA with ncp = 3
-res.pca <- PCA(pxrf_final[3:10], ncp = 7, graph = FALSE)
+res.pca <- PCA(pxrf_final[3:10], ncp = 5, graph = FALSE)
 # Compute hierarchical clustering on principal components
 res.hcpc <- HCPC(res.pca, graph = FALSE)
     
@@ -331,14 +332,6 @@ fviz_dend(res.hcpc,
           rect_border = "jco",           # Rectangle color
           labels_track_height = 0.8      # Augment the room for labels
           )
-      
-  fviz_cluster(res.hcpc,
-             repel = TRUE,            # Avoid label overlapping
-             show.clust.cent = TRUE, # Show cluster centers
-             palette = "jco",         # Color palette see ?ggpubr::ggpar
-             ggtheme = theme_minimal(),
-             main = "Factor map"
-             )
 
 ```
 

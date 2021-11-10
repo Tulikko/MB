@@ -158,8 +158,9 @@ ggplot(tga,
       aes(c550, c950, label = rownames(tga), colour = factor(type))) +
       geom_point(size=2, aes(shape = factor(context))) +
       geom_text_repel(size=3) + 
-      labs(title = "TGA LOI, soil included - color by type", 
-           color = "Context",
+      labs(title = "TGA loss on ignition", 
+           color = "Type",
+           shape = "Context",
            x = "Organic LOI (%)", 
            y = "Carbonate LOI (%)") +
       theme(axis.title = element_text())
