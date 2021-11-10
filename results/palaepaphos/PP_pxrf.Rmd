@@ -108,12 +108,34 @@ pxrf_all <- pxrf_scaled %>% select_if(all_na)
 ```{r}
 colnames(is.na(pxrf_all[-c(1:2)]))
 
-# pxrf_averaged[pxrf_averaged == "0"] <- NA
+# Mean values and mean errors
 pxrf_errors <- pxrf_averaged %>% select_if(all_na)
 pxrf_errors <- colMeans(pxrf_errors[-c(1:2)])
 pxrf_errors <- (pxrf_errors * 1000)
 pxrf_errors <- round(pxrf_errors, digits = 2)
-pxrf_errors
+
+# Combining the individual measurement errors properly
+pxrf_errors2 <- pxrf[,grepl("Err$", names(pxrf))]
+
+### 
+### errorfunc <- function(x){(1/length(x))*(sqrt(sum(x^2)))}
+errorfunc <- function(x){(sqrt(sum(x^2)))}
+pxrf_errors2<- aggregate(pxrf_errors2, by = list(pxrf$Sample), FUN = errorfunc)
+
+rownames(pxrf_errors2) <- pxrf_errors2$'Group.1'
+pxrf_errors2 <- pxrf_errors2 %>% select(-Group.1)
+
+# Dataframe with correct combined errors for each sample
+pxrf_errors2
+
+# Replacing mean errors with calculated errors
+pxrf_averaged[names(pxrf_errors2)] <- pxrf_errors2
+
+# Printing table with errors for selected elements
+pxrf_table <- pxrf_averaged[c(19:22,25:28,35:36,41:48)]
+pxrf_table <-  (pxrf_table * 1000)
+pxrf_table <- round(pxrf_table, digits = 2)
+kable(pxrf_table)
 ```
 
 **pxrf_final**: Final analysis data set with only the selected elements
@@ -146,11 +168,6 @@ pxrf_final[is.na(pxrf_final)] <- 0
 
 # Final analysis data set        
 colnames(pxrf_final[-c(1:2)])
-
-pxrf_table <- pxrf_averaged[c(19:22,25:28,35:36,41:48)]
-pxrf_table <-  (pxrf_table * 1000)
-pxrf_table <- round(pxrf_table, digits = 2)
-kable(pxrf_table)
 
 ```
 
