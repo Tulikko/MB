@@ -146,6 +146,12 @@ pxrf_final[is.na(pxrf_final)] <- 0
 
 # Final analysis data set        
 colnames(pxrf_final[-c(1:2)])
+
+pxrf_table <- pxrf_averaged[c(19:22,25:28,35:36,41:48)]
+pxrf_table <-  (pxrf_table * 1000)
+pxrf_table <- round(pxrf_table, digits = 2)
+kable(pxrf_table)
+
 ```
 
 **pxrf_MB**: Final analysis data set for MUDBRICK samples only (= no soil)
