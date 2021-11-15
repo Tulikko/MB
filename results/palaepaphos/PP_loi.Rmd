@@ -164,6 +164,7 @@ p1 <- ggplot(tga,
            y = "Carbonate LOI (%)") +
       theme(axis.title = element_text(), legend.position="left") 
 p1
+p1 <- p1 + theme(legend.position="left")
 
 # Combining plots to the same figure
 library(patchwork)
@@ -173,8 +174,8 @@ p3 <- ggplot(tga) + geom_boxplot(aes(c950, color = context), show.legend = FALSE
       coord_flip()
 
 # Simple arrangement
-p2 /
-(p3 | p1)
+## p2 /
+## (p3 | p1)
 
 
 # Prettier figure
