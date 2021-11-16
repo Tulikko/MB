@@ -293,69 +293,67 @@ dend <-
     rect.dendrogram(dend, 6, border = "Grey", lty = 5)
     legend("topright", legend = levels(area), fill = cols_a)
     
-
-# PCA biplot with HCA groups
-    
-# Compute PCA with ncp = 3
-res.pca <- PCA(pxrf_MB[3:10], ncp = 3, graph = FALSE)
-# Compute hierarchical clustering on principal components
-res.hcpc <- HCPC(res.pca, graph = FALSE)
-    
-fviz_dend(res.hcpc, 
-          cex = 0.7,                     # Label size
-          palette = "jco",               # Color palette see ?ggpubr::ggpar
-          rect = TRUE, rect_fill = TRUE, # Add rectangle around groups
-          rect_border = "jco",           # Rectangle color
-          labels_track_height = 0.8      # Augment the room for labels
-          )
-      
-  fviz_cluster(res.hcpc,
-             repel = TRUE,            # Avoid label overlapping
-             show.clust.cent = TRUE, # Show cluster centers
-             palette = "jco",         # Color palette see ?ggpubr::ggpar
-             ggtheme = theme_minimal(),
-             main = "Factor map"
-             )
-
 ```
 
 **HCA with soil samples, colored by type**: \
 
 ```{r}
 # HCA dendrogram, samples color coded by type:
-dend3 <- 
+    type <- as.factor(pxrf_final[, 2])
+    n_type <- length(unique(type))
+    cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
+    col_type <- cols_t[type]
+    
+# HCA
+dend2 <- 
     pxrf_final %>%                      # data
     dist %>%                            # calculate a distance matrix
     hclust(method = "ward.D2") %>%      # hierarchical clustering 
     as.dendrogram %>%                   # turn the object into a dendrogram
     highlight_branches_col
 
-    type <- as.factor(pxrf_final[, 2])
-    n_type <- length(unique(type))
-    cols_t <- colorspace::rainbow_hcl(n_type, c = 70, l  = 50)
-    col_type <- cols_t[type]
-    labels_colors(dend3) <- col_type[order.dendrogram(dend3)]
-
-    plot(dend3, main="HCA with all samples by type")
-    rect.dendrogram(dend3, 2, border = "Grey", lty = 5)
+    labels_colors(dend2) <- col_type[order.dendrogram(dend2)]
+    plot(dend2, main="HCA with all samples by type")      
+    rect.dendrogram(dend2, k=9, border = "Grey", lty = 5)
     legend("topright", legend = levels(type), fill = cols_t)
-    
-    
-    # PCA biplot with HCA groups
-    
-# Compute PCA with ncp = 3
-res.pca <- PCA(pxrf_final[3:10], ncp = 5, graph = FALSE)
-# Compute hierarchical clustering on principal components
-res.hcpc <- HCPC(res.pca, graph = FALSE)
-    
-fviz_dend(res.hcpc, 
-          cex = 0.7,                     # Label size
-          palette = "jco",               # Color palette see ?ggpubr::ggpar
-          rect = TRUE, rect_fill = TRUE, # Add rectangle around groups
-          rect_border = "jco",           # Rectangle color
-          labels_track_height = 0.8      # Augment the room for labels
-          )
+
+
 
 ```
+**Combining plots**: \
 
+```{r}
+# Trying to recreate dendrogram with ggplot to be able to combine plots
+library(ggdendro)
+    
+dend2 <- dend2 %>%  
+    set("labels_colors", col_type[order.dendrogram(dend2)]) %>% 
+    set("labels_cex", 1)
+    
+ggp1 <- as.ggdend(dend2)
+p1 <- ggplot(ggp1) + 
+      ylim(-2, 13)
+
+
+# Combining plots to the same figure
+library(patchwork)
+
+p2 <- fviz_pca_var(PCA_02, col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE,
+             legend.title = "Contribution") +
+             ggtitle("PCA variables")
+p3 <- fviz_pca_ind(PCA_02,
+             col.ind = pxrf_final$Type, 
+             repel = TRUE,
+             legend.title = "Type") +
+             ggtitle("PCA individuals")
+
+(p2+p3) /
+p1 +
+plot_layout(heights = c(1, 1))+
+             ggtitle("HCA dendrogram")
+
+
+```
 
