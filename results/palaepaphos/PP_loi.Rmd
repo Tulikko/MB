@@ -237,16 +237,16 @@ spectra_MB <- filter(spectra_MB, !grepl('PP-7', Name))
 spectra_MB <- filter(spectra_MB, !grepl('PP-8', Name))
 
 # Draw spectra
-ggplot(spectra_MB, aes(x=Temperature, y=Loss, color=Name, group=Name)) +
+ggplot(spectra_MB, aes(x=Time, y=Loss, color=Name, group=Name)) +
     geom_line() +
     ggtitle("TGA weight loss curves, MB only") +
-    scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
     scale_y_continuous(breaks = scales::pretty_breaks(n = 10))
 
 # Derivative of every point (DTG)
-spectra_D <- filter(spectra_MB, grepl('PP-9', Name))
+spectra_D <- filter(spectra_MB, grepl('PP-10', Name))
 
-x = (spectra_D$Temperature)
+x = (spectra_D$Time)
 y = (spectra_D$Weight)
 
 d1 = diff(x)/diff(y)
@@ -257,10 +257,10 @@ par(new=TRUE)
 plot(x, d1, type="l", add=TRUE)
 
 # Draw spectra
-ggplot(spectra, aes(x=Temperature, y=Loss, color=Name, group=Name)) +
+ggplot(spectra, aes(x=Time, y=Weight, color=Name, group=Name)) +
     geom_line() +
     ggtitle("TGA weight loss curves, soil samples included") +
-    scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
     scale_y_continuous(breaks = scales::pretty_breaks(n = 10))
 ```
 
