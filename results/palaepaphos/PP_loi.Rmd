@@ -225,11 +225,29 @@ spectra <- read.xlsx("data/tga_spectra.xlsx", sep=";")
 # Remove any rows containing words 'ERROR' or 'TEST'
 spectra <- filter(spectra, !grepl('kekkila', Name))
 spectra <- filter(spectra, grepl('PP', Name))
-spectra <- filter(spectra, !grepl('2', Name))
+spectra <- filter(spectra, !grepl('_2', Name))
+
+spectra_MB <- filter(spectra, !grepl('PP-1$', Name))
+spectra_MB <- filter(spectra_MB, !grepl('PP-2', Name))
+spectra_MB <- filter(spectra_MB, !grepl('PP-3', Name))
+spectra_MB <- filter(spectra_MB, !grepl('PP-4', Name))
+spectra_MB <- filter(spectra_MB, !grepl('PP-5', Name))
+spectra_MB <- filter(spectra_MB, !grepl('PP-6', Name))
+spectra_MB <- filter(spectra_MB, !grepl('PP-7', Name))
+spectra_MB <- filter(spectra_MB, !grepl('PP-8', Name))
+
+# Draw spectra
+ggplot(spectra_MB, aes(x=Temperature, y=Loss, color=Name, group=Name)) +
+    geom_line() +
+    ggtitle("TGA weight loss curves, MB only") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 10))
 
 # Draw spectra
 ggplot(spectra, aes(x=Temperature, y=Loss, color=Name, group=Name)) +
     geom_line() +
-    ggtitle("TGA weight loss curves")
+    ggtitle("TGA weight loss curves, soil samples included") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 10))
 ```
 

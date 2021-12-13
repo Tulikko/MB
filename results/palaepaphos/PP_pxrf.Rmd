@@ -324,35 +324,37 @@ dend2 <-
 
 ```{r}
 # Trying to recreate dendrogram with ggplot to be able to combine plots
-library(ggdendro)
+#### This works in R but not when knitting!
+
+# library(ggdendro)
     
-dend2 <- dend2 %>%  
-    set("labels_colors", col_type[order.dendrogram(dend2)]) %>% 
-    set("labels_cex", 1)
+# dend2 <- dend2 %>%  
+#    set("labels_colors", col_type[order.dendrogram(dend2)]) %>% 
+#    set("labels_cex", 1)
     
-ggp1 <- as.ggdend(dend2)
-p1 <- ggplot(ggp1) + 
-      ylim(-2, 13)
+# ggp1 <- as.ggdend(dend2)
+# p1 <- ggplot(ggp1) + 
+#      ylim(-2, 13)
 
 
 # Combining plots to the same figure
-library(patchwork)
+# library(patchwork)
 
-p2 <- fviz_pca_var(PCA_02, col.var = "contrib",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
-             repel = TRUE,
-             legend.title = "Contribution") +
-             ggtitle("PCA variables")
-p3 <- fviz_pca_ind(PCA_02,
-             col.ind = pxrf_final$Type, 
-             repel = TRUE,
-             legend.title = "Type") +
-             ggtitle("PCA individuals")
+# p2 <- fviz_pca_var(PCA_02, col.var = "contrib",
+#             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+#             repel = TRUE,
+#             legend.title = "Contribution") +
+#             ggtitle("PCA variables")
+# p3 <- fviz_pca_ind(PCA_02,
+#             col.ind = pxrf_final$Type, 
+#             repel = TRUE,
+#             legend.title = "Type") +
+#             ggtitle("PCA individuals")
 
-(p2+p3) /
-p1 +
-plot_layout(heights = c(1, 1))+
-             ggtitle("HCA dendrogram")
+# (p2+p3) /
+# p1 +
+# plot_layout(heights = c(1, 1))+
+#             ggtitle("HCA dendrogram")
 
 
 ```
