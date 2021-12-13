@@ -219,11 +219,17 @@ ggplot(tga_long2, aes(x = reorder(Name, Temp), y = Temp, fill = variable)) +
 Checking weight loss lineplots for assessing if temperatures could tell us about different carbonate sources
 
 ```{r}
-# Reshaping data to long form
-loi_long <- melt(tga[c(1,13:14)], id = "sample") 
+# Read the raw data
+spectra <- read.xlsx("data/tga_spectra.xlsx", sep=";")
 
-ggplot(loi_long, aes(x=variable, y=value, color=sample, group=sample)) +
+# Remove any rows containing words 'ERROR' or 'TEST'
+spectra <- filter(spectra, !grepl('kekkila', Name))
+spectra <- filter(spectra, grepl('PP', Name))
+spectra <- filter(spectra, !grepl('2', Name))
+
+# Draw spectra
+ggplot(spectra, aes(x=Temperature, y=Loss, color=Name, group=Name)) +
     geom_line() +
-    ggtitle("Grain size distribution curves")
+    ggtitle("TGA weight loss curves")
 ```
 
