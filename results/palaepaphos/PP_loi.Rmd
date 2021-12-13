@@ -243,6 +243,19 @@ ggplot(spectra_MB, aes(x=Temperature, y=Loss, color=Name, group=Name)) +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
     scale_y_continuous(breaks = scales::pretty_breaks(n = 10))
 
+# Derivative of every point (DTG)
+spectra_D <- filter(spectra_MB, grepl('PP-9', Name))
+
+x = (spectra_D$Temperature)
+y = (spectra_D$Weight)
+
+d1 = diff(x)/diff(y)
+d1 = c(d1[1],d1)
+
+plot(x,y, type="l")
+par(new=TRUE)
+plot(x, d1, type="l", add=TRUE)
+
 # Draw spectra
 ggplot(spectra, aes(x=Temperature, y=Loss, color=Name, group=Name)) +
     geom_line() +
