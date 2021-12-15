@@ -220,45 +220,146 @@ Checking weight loss lineplots for assessing if temperatures could tell us about
 
 ```{r}
 # Read the raw data
-spectra <- read.xlsx("data/tga_spectra.xlsx", sep=";")
+spectra <- read.xlsx("data/tga_PP_dynamic.xlsx", sep=";")
 
 # Remove any rows containing words 'ERROR' or 'TEST'
-spectra <- filter(spectra, grepl('PP|S', Name))
-spectra <- filter(spectra, !grepl('_2', Name))
-
-spectra_MB <- filter(spectra, !grepl('S', Name))
+spectra <- filter(spectra, grepl('PP|S', Sample))
+spectra <- filter(spectra, !grepl('_2', Sample))
 
 # Draw spectra
-ggplot(spectra_MB, aes(x=Time, y=Loss, color=Name, group=Name)) +
+ggplot(spectra, aes(x=Temp, y=Loss, color=Sample, group=Sample)) +
     geom_line() +
-    ggtitle("TGA weight loss curves, MB only") +
+    ggtitle("TGA weight loss curves") +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-  
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+ 
 # Draw spectra
-ggplot(spectra_MB, aes(x=Temperature, y=Weight, color=Name, group=Name)) +
+ggplot(spectra, aes(x=Temp, y=DTG, color=Sample, group=Sample)) +
     geom_line() +
-    ggtitle("TGA weight loss curves, MB only") +
+    ggtitle("TGA 1st derivative weight loss curves") +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
     scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
 
-# Derivative of every point (DTG)
-spectra_D <- filter(spectra_MB, grepl('PP-10', Name))
-
-x = (spectra_D$Time)
-y = (spectra_D$Weight)
-
-d1 = diff(x)/diff(y)
-d1 = c(d1[1],d1)
-
-plot(x,y, type="l")
-par(new=TRUE)
-plot(x, d1, type="l", add=TRUE)
-
-# Draw spectra
-ggplot(spectra, aes(x=Time, y=Weight, color=Name, group=Name)) +
-    geom_line() +
-    ggtitle("TGA weight loss curves, soil samples included") +
+# PP-9
+spectra_D <- filter(spectra, grepl('PP-9', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-9",
+         colour="",
+         y="DTG") +
     scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-    scale_y_continuous(breaks = scales::pretty_breaks(n = 10))
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-10
+spectra_D <- filter(spectra, grepl('PP-10', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-10",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-11
+spectra_D <- filter(spectra, grepl('PP-11', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-11",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-12
+spectra_D <- filter(spectra, grepl('PP-12', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-12",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-13
+spectra_D <- filter(spectra, grepl('PP-13', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-13",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-14
+spectra_D <- filter(spectra, grepl('PP-14', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-14",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-15
+spectra_D <- filter(spectra, grepl('PP-15', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-15",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-16
+spectra_D <- filter(spectra, grepl('PP-16', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-16",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-17
+spectra_D <- filter(spectra, grepl('PP-17', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-17",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-18
+spectra_D <- filter(spectra, grepl('PP-18', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-18",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
+# PP-19
+spectra_D <- filter(spectra, grepl('PP-19', Sample))
+ggplot(spectra_D, aes(x=Temp)) +
+    geom_line(aes(y=Loss, color="red", ylab="Mass loss")) +
+    geom_line(aes(y=DTG*100, color="blue")) +
+    labs(title="PP-19",
+         colour="",
+         y="DTG") +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
 ```
 
