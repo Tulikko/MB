@@ -47,6 +47,10 @@ normalize <- function(x, na.rm=TRUE){(x-min(x, na.rm=TRUE))/(max(x, na.rm=TRUE)-
 # Apply function "normalize" to clay, silt and sand columns
 grain_01 <- as.data.frame(apply(grain[5:7], 2, normalize))
 
+library(knitr)
+grain_simple <- round(grain[5:7], digits = 2)
+kable(grain_simple)
+
 ```
 
 #### Ternary plots
